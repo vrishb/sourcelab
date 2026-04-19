@@ -1,0 +1,4018 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SourceLab — Client & Operations Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAF8F4;
+  --surface: #FFFFFF;
+  --surface-2: #F4F1EA;
+  --surface-3: #EDE8DE;
+  --ink: #1A1917;
+  --ink-2: #57534E;
+  --ink-3: #8A847C;
+  --ink-4: #B8B1A4;
+  --border: #E8E3D7;
+  --border-strong: #D6CFBE;
+  --accent: #B8410C;
+  --accent-soft: #FCEEE3;
+  --blue: #1D4ED8;     --blue-bg: #EAEFFB;
+  --amber: #92400E;    --amber-bg: #FBEFD4;
+  --purple: #6D28D9;   --purple-bg: #F1E9FB;
+  --green: #14532D;    --green-bg: #DCEFE0;
+  --red: #991B1B;      --red-bg: #FBE5E2;
+  --shadow-sm: 0 1px 2px rgba(26,25,23,0.04);
+  --shadow-md: 0 4px 16px rgba(26,25,23,0.06), 0 1px 3px rgba(26,25,23,0.04);
+  --shadow-lg: 0 16px 48px rgba(26,25,23,0.08), 0 2px 8px rgba(26,25,23,0.05);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv11";
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, textarea, select { font-family: inherit; font-size: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+.mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: normal; }
+.serif { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 400; }
+
+/* ─────── shell ─────── */
+#app { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.shell { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+.main {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg);
+}
+.main-inner { max-width: 1240px; margin: 0 auto; padding: 32px 40px 80px; }
+/* sidebar already fills shell height due to flex; ensure it doesn't scroll away */
+.sidebar { overflow-y: auto; }
+
+/* ─────── header ─────── */
+.header {
+  height: 60px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 24px;
+  flex-shrink: 0;
+  position: sticky; top: 0; z-index: 50;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 600; font-size: 15px;
+  letter-spacing: -0.01em;
+}
+.logo-mark {
+  width: 26px; height: 26px;
+  background: var(--ink); color: var(--bg);
+  display: grid; place-items: center;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 16px;
+  font-weight: 400;
+  border-radius: 2px;
+}
+.logo-name { letter-spacing: -0.01em; }
+.logo-name b { font-weight: 600; }
+.logo-name span { color: var(--ink-3); font-weight: 400; }
+
+.role-switcher {
+  display: flex;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+  position: relative;
+}
+.role-switcher button {
+  padding: 6px 18px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-3);
+  border-radius: 999px;
+  display: flex; align-items: center; gap: 7px;
+  transition: color .2s, background .2s;
+  letter-spacing: 0.01em;
+}
+.role-switcher button.active {
+  background: var(--ink);
+  color: var(--bg);
+}
+.role-switcher .dot {
+  width: 5px; height: 5px; border-radius: 50%; background: currentColor;
+  opacity: 0.6;
+}
+.role-switcher .active .dot { opacity: 1; }
+
+.header-spacer { flex: 1; }
+.header-meta {
+  display: flex; align-items: center; gap: 22px;
+  font-size: 12px; color: var(--ink-3);
+}
+.header-meta .pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+/* ─────── sidebar ─────── */
+.sidebar {
+  width: 240px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+  padding: 20px 12px;
+  overflow-y: auto;
+  transition: width .2s ease;
+  display: flex; flex-direction: column;
+}
+.sidebar.collapsed {
+  width: 48px;
+  padding: 14px 8px;
+  overflow: hidden;
+}
+.sidebar.collapsed .side-section,
+.sidebar.collapsed .side-cta { display: none; }
+.sidebar-collapse-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%;
+  padding: 7px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--ink-3);
+  background: none; border: none; cursor: pointer;
+  margin-bottom: 8px;
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+}
+.sidebar-collapse-btn:hover { background: var(--surface-2); color: var(--ink); }
+.side-section + .side-section { margin-top: 22px; }
+.side-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-4);
+  padding: 0 12px 8px;
+}
+.side-item {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  transition: background .15s, color .15s;
+  text-align: left;
+}
+.side-item:hover { background: var(--surface-2); color: var(--ink); }
+.side-item.active { background: var(--ink); color: var(--bg); font-weight: 500; }
+.side-item.active .badge { background: rgba(255,255,255,0.18); color: var(--bg); }
+.side-item .badge {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  background: var(--surface-2);
+  color: var(--ink-3);
+  padding: 2px 7px;
+  border-radius: 4px;
+  min-width: 22px;
+  text-align: center;
+}
+.side-item .icon {
+  width: 14px; height: 14px;
+  display: inline-block;
+  margin-right: 9px;
+  vertical-align: -2px;
+  opacity: 0.7;
+}
+.side-cta {
+  margin-top: 20px;
+  padding: 14px 14px 14px;
+  background: var(--accent-soft);
+  border: 1px solid #F2D9C4;
+  border-radius: 8px;
+}
+.side-cta-title {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.side-cta-body { font-size: 12px; color: var(--ink-2); margin-bottom: 10px; line-height: 1.45; }
+.side-cta button {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ─────── page intro ─────── */
+.page-eyebrow {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+.page-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 38px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.page-title em { font-style: italic; font-weight: 400; }
+.page-sub {
+  font-size: 14px;
+  color: var(--ink-2);
+  max-width: 620px;
+  margin-bottom: 28px;
+}
+
+/* ─────── metric cards ─────── */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 18px 16px;
+  position: relative;
+  overflow: hidden;
+}
+.metric-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.metric-value {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.metric-trend {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  margin-top: 8px;
+  display: flex; gap: 6px; align-items: center;
+}
+.metric-trend b { color: var(--green); font-weight: 500; }
+.metric-trend.warn b { color: var(--accent); }
+.metric .corner-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ─────── card / section ─────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-head {
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.card-title-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+.card-actions { display: flex; gap: 8px; }
+
+/* ─────── orders table (admin) ─────── */
+.orders-table { width: 100%; border-collapse: collapse; }
+.orders-table th {
+  text-align: left;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  font-weight: 500;
+  padding: 12px 22px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+.orders-table td {
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--ink-2);
+  vertical-align: middle;
+}
+.orders-table tr:last-child td { border-bottom: none; }
+.orders-table tr.row { cursor: pointer; transition: background .15s; }
+.orders-table tr.row:hover { background: var(--surface-2); }
+.orders-table .product-name {
+  color: var(--ink);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 2px;
+}
+.orders-table .product-cat {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.orders-table .id-cell {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+.orders-table .qty {
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  color: var(--ink);
+}
+.orders-table .updated { color: var(--ink-3); font-size: 12px; }
+.action-prompt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: 4px;
+  border: 1px solid #F2D9C4;
+  margin-top: 4px;
+}
+.action-prompt::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ─────── status badges ─────── */
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  font-family: 'Geist Mono', monospace;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.badge-status::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+}
+.badge-status.blue { background: var(--blue-bg); color: var(--blue); }
+.badge-status.amber { background: var(--amber-bg); color: var(--amber); }
+.badge-status.purple { background: var(--purple-bg); color: var(--purple); }
+.badge-status.green { background: var(--green-bg); color: var(--green); }
+.badge-status.red { background: var(--red-bg); color: var(--red); }
+
+/* ─────── client dashboard cards ─────── */
+.order-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.order-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.order-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.order-card-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.order-card-id {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+.order-card-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.order-card-meta {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.progress-bar {
+  height: 4px;
+  background: var(--surface-3);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 18px 0 10px;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--ink);
+  border-radius: 999px;
+  transition: width .4s;
+}
+.progress-meta {
+  display: flex; justify-content: space-between;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+}
+
+/* ─────── order detail ─────── */
+.detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  margin-bottom: 20px;
+  padding: 6px 0;
+}
+.detail-back:hover { color: var(--ink); }
+
+.detail-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+.detail-eyebrow {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.detail-eyebrow span:not(:last-child)::after {
+  content: '·';
+  margin-left: 12px;
+  color: var(--ink-4);
+}
+.detail-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 42px;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.detail-client {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+/* pipeline timeline */
+.pipeline {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 26px 28px 22px;
+  margin-bottom: 24px;
+}
+.pipeline-track {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 0;
+  position: relative;
+}
+.pipe-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  text-align: center;
+}
+.pipe-stage::before, .pipe-stage::after {
+  content: '';
+  position: absolute;
+  top: 9px;
+  height: 1px;
+  background: var(--border-strong);
+  z-index: 0;
+}
+.pipe-stage::before { left: 0; right: 50%; }
+.pipe-stage::after  { left: 50%; right: 0; }
+.pipe-stage:first-child::before { display: none; }
+.pipe-stage:last-child::after { display: none; }
+.pipe-stage.done::before, .pipe-stage.done::after,
+.pipe-stage.active::before { background: var(--ink); }
+.pipe-dot {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  position: relative;
+  z-index: 1;
+  display: grid; place-items: center;
+}
+.pipe-stage.done .pipe-dot { background: var(--ink); border-color: var(--ink); }
+.pipe-stage.done .pipe-dot::after {
+  content: '✓'; color: var(--bg); font-size: 10px; line-height: 1;
+}
+.pipe-stage.active .pipe-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.pipe-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  margin-top: 12px;
+  max-width: 80px;
+  line-height: 1.3;
+}
+.pipe-stage.active .pipe-label { color: var(--accent); font-weight: 500; }
+.pipe-stage.done .pipe-label { color: var(--ink-2); }
+
+/* tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.tab {
+  padding: 12px 18px;
+  font-size: 13px;
+  color: var(--ink-3);
+  position: relative;
+  font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+}
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--ink); }
+.tab.active::after {
+  content: '';
+  position: absolute;
+  left: 12px; right: 12px; bottom: -1px; height: 2px;
+  background: var(--ink);
+}
+.tab .tab-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* detail content layout */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 22px;
+}
+.detail-col { display: flex; flex-direction: column; gap: 22px; }
+
+/* spec list */
+.spec-list { padding: 4px 0; }
+.spec-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 16px;
+  padding: 13px 22px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.spec-row:last-child { border-bottom: none; }
+.spec-key {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  padding-top: 1px;
+}
+.spec-val { color: var(--ink); }
+
+/* action panel */
+.action-panel {
+  background: linear-gradient(180deg, #FFF6EE 0%, #FCEEE3 100%);
+  border: 1px solid #F2D9C4;
+  border-radius: 10px;
+  padding: 22px;
+}
+.action-panel-eyebrow {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 7px;
+}
+.action-panel-eyebrow::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); animation: pulse 2s infinite;
+}
+.action-panel-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.action-panel-body {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.action-panel-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* buttons */
+.btn {
+  padding: 9px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all .15s;
+  border: 1px solid transparent;
+}
+.btn-primary { background: var(--ink); color: var(--bg); }
+.btn-primary:hover { background: #000; }
+.btn-secondary { background: var(--surface); color: var(--ink); border-color: var(--border-strong); }
+.btn-secondary:hover { background: var(--surface-2); }
+.btn-ghost { color: var(--ink-2); padding: 9px 12px; }
+.btn-ghost:hover { background: var(--surface-2); color: var(--ink); }
+.btn-danger { background: var(--surface); color: var(--red); border-color: var(--red-bg); }
+.btn-danger:hover { background: var(--red-bg); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+/* notes */
+.note {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.note:last-child { border-bottom: none; }
+.note.internal { background: #FFFAEC; }
+.note-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+.note-author { font-weight: 500; color: var(--ink); }
+.note-author small { color: var(--ink-3); margin-left: 6px; font-weight: 400; }
+.note-internal-tag {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  background: var(--amber-bg);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.note-time { color: var(--ink-3); font-size: 11px; font-family: 'Geist Mono', monospace; }
+.note-body { font-size: 13px; color: var(--ink-2); line-height: 1.55; }
+
+.note-composer {
+  padding: 18px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.note-composer textarea {
+  width: 100%;
+  min-height: 70px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  resize: vertical;
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+}
+.note-composer textarea:focus { border-color: var(--ink); }
+.note-composer-actions {
+  margin-top: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.note-toggle {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--ink-3);
+}
+.toggle {
+  width: 28px; height: 16px; border-radius: 999px;
+  background: var(--border-strong);
+  position: relative; cursor: pointer;
+  transition: background .2s;
+}
+.toggle::after {
+  content: ''; width: 12px; height: 12px; border-radius: 50%;
+  background: white; position: absolute; top: 2px; left: 2px;
+  transition: left .2s;
+}
+.toggle.on { background: var(--accent); }
+.toggle.on::after { left: 14px; }
+
+/* photo grid */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 18px;
+}
+.photo {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: all .2s;
+  background: var(--surface-3);
+}
+.photo:hover { transform: translateY(-1px); }
+.photo.approved { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
+.photo .photo-svg {
+  width: 100%; height: 100%; display: block;
+}
+.photo .photo-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+  color: white;
+  padding: 18px 10px 8px;
+  font-size: 11px;
+  font-family: 'Geist Mono', monospace;
+}
+.photo .photo-check {
+  position: absolute; top: 8px; right: 8px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--border-strong);
+  display: grid; place-items: center;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.photo.approved .photo-check {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+/* milestone feed */
+.feed { padding: 6px 22px 18px; }
+.feed-item {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 14px;
+  padding: 14px 0;
+  position: relative;
+}
+.feed-item::before {
+  content: '';
+  position: absolute;
+  left: 8px; top: 24px; bottom: -14px;
+  width: 1px;
+  background: var(--border-strong);
+}
+.feed-item:last-child::before { display: none; }
+.feed-dot {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  margin-top: 4px;
+  z-index: 1;
+}
+.feed-item.pending .feed-dot {
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+.feed-item.pending .feed-title { color: var(--ink-3); }
+.feed-title {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.feed-time {
+  font-size: 11px;
+  font-family: 'Geist Mono', monospace;
+  color: var(--ink-3);
+}
+.feed-body {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+/* quote box */
+.quote-block { padding: 22px; }
+.quote-figure {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+.quote-fig-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+.quote-fig-val {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  line-height: 1.05;
+}
+.quote-fig-val small { font-size: 12px; color: var(--ink-3); font-family: 'Geist Mono', monospace; font-weight: 400; }
+
+/* shipping label upload */
+.upload-zone {
+  border: 1.5px dashed var(--border-strong);
+  border-radius: 8px;
+  padding: 28px;
+  text-align: center;
+  background: var(--surface-2);
+  transition: all .2s;
+}
+.upload-zone:hover { border-color: var(--ink); background: var(--surface-3); }
+.upload-zone .upload-icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  display: grid; place-items: center;
+  margin: 0 auto 10px;
+  font-size: 16px;
+  color: var(--ink-2);
+}
+.upload-zone .upload-text { font-size: 13px; color: var(--ink-2); margin-bottom: 4px; }
+.upload-zone .upload-hint { font-size: 11px; color: var(--ink-3); font-family: 'Geist Mono', monospace; }
+
+/* shipping mini card */
+.tracking-card {
+  padding: 22px;
+}
+.tracking-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  padding: 10px 0;
+  font-size: 13px;
+}
+.tracking-row + .tracking-row { border-top: 1px solid var(--border); }
+.tracking-row .k {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+}
+.tracking-row .v { color: var(--ink); }
+
+/* INTAKE FLOW */
+.intake-shell {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.intake-progress {
+  display: flex; gap: 8px; margin-bottom: 32px;
+}
+.intake-step {
+  flex: 1;
+  height: 3px;
+  background: var(--surface-3);
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+}
+.intake-step.done { background: var(--ink); }
+.intake-step.active::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: var(--ink);
+  width: 60%;
+}
+
+.dropzone {
+  border: 2px dashed var(--border-strong);
+  border-radius: 14px;
+  padding: 56px 28px;
+  text-align: center;
+  background: var(--surface);
+  transition: all .2s;
+}
+.dropzone:hover { border-color: var(--ink); background: var(--surface-2); }
+.dropzone-icon {
+  width: 56px; height: 56px;
+  margin: 0 auto 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  display: grid; place-items: center;
+  font-size: 22px;
+}
+.dropzone-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.dropzone-sub {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin-bottom: 20px;
+}
+.file-types {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.file-type-pill {
+  padding: 3px 9px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.intake-files {
+  display: flex; flex-direction: column; gap: 8px;
+  margin: 22px 0 8px;
+}
+.intake-file {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.intake-file-icon {
+  width: 36px; height: 36px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  display: grid; place-items: center;
+  font-family: 'Geist Mono', monospace;
+  font-size: 9.5px;
+  color: var(--ink-2);
+  border: 1px solid var(--border);
+}
+.intake-file-meta { flex: 1; }
+.intake-file-name { font-size: 13px; font-weight: 500; color: var(--ink); }
+.intake-file-size { font-size: 11px; color: var(--ink-3); font-family: 'Geist Mono', monospace; }
+.intake-file-status {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--green);
+}
+.intake-file-status::before {
+  content: '✓'; width: 14px; height: 14px;
+  background: var(--green-bg);
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 9px;
+}
+
+/* extracted fields */
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.field-cell {
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  position: relative;
+}
+.field-cell.high { border-left: 3px solid var(--green); }
+.field-cell.amber { border-left: 3px solid var(--amber); background: #FFFAEC; }
+.field-cell.low { border-left: 3px solid var(--red); background: #FFF6F4; }
+.field-key {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  margin-bottom: 4px;
+  display: flex; justify-content: space-between;
+}
+.field-val { font-size: 13px; color: var(--ink); font-weight: 500; }
+.field-val.empty { color: var(--ink-4); font-style: italic; font-weight: 400; }
+.field-conf {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.field-conf.high { color: var(--green); }
+.field-conf.amber { color: var(--amber); }
+.field-conf.low { color: var(--red); }
+
+/* chat */
+.chat {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 4px 0 14px;
+}
+.chat-msg {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.chat-msg.ai {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+.chat-msg.user {
+  background: var(--ink);
+  color: var(--bg);
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.quick-replies {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 4px;
+}
+.qr {
+  padding: 7px 13px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all .15s;
+}
+.qr:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chat-input {
+  display: flex; gap: 8px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.chat-input input {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  padding: 6px 4px;
+}
+.chat-input button {
+  padding: 6px 14px;
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ─────── misc ─────── */
+.empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--ink-3);
+}
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+.row-flex { display: flex; align-items: center; gap: 8px; }
+.section-gap > * + * { margin-top: 22px; }
+
+/* footer ribbon */
+.context-ribbon {
+  background: linear-gradient(180deg, #FFF6EE 0%, #FAF8F4 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 24px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.context-ribbon b { color: var(--accent); font-weight: 500; }
+.context-ribbon-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
+}
+
+/* ─────── product thumbnail ─────── */
+.product-thumb {
+  width: 44px; height: 44px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.product-thumb svg { width: 30px; height: 30px; }
+
+/* ─────── inline progress (table rows) ─────── */
+.mini-progress {
+  height: 3px;
+  background: var(--surface-3);
+  border-radius: 999px;
+  overflow: hidden;
+  width: 120px;
+  margin-bottom: 4px;
+}
+.mini-progress-fill {
+  height: 100%;
+  background: var(--ink);
+  border-radius: 999px;
+}
+
+/* ─────── clients table ─────── */
+.clients-table { width: 100%; border-collapse: collapse; }
+.clients-table th {
+  text-align: left;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  font-weight: 500;
+  padding: 12px 20px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.clients-table td {
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--ink-2);
+  vertical-align: middle;
+}
+.clients-table tr:last-child td { border-bottom: none; }
+.clients-table tr.row { cursor: pointer; transition: background .15s; }
+.clients-table tr.row:hover { background: var(--surface-2); }
+.client-name { font-weight: 600; color: var(--ink); font-size: 13.5px; }
+.client-location { font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
+.client-contact-name { font-weight: 500; color: var(--ink); }
+.client-contact-detail { font-size: 11.5px; color: var(--ink-3); font-family: 'Geist Mono', monospace; margin-top: 1px; }
+.clients-table .num-cell {
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  color: var(--ink);
+  font-weight: 500;
+}
+.clients-table .revenue-cell {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 17px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+/* ─────── modal ─────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(26,25,23,0.45);
+  display: grid; place-items: center;
+  z-index: 200;
+  padding: 24px;
+  backdrop-filter: blur(2px);
+}
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 520px;
+  max-width: 100%;
+  box-shadow: var(--shadow-lg);
+  animation: modal-in .18s ease;
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 24px 24px 0;
+  margin-bottom: 20px;
+}
+.modal-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.modal-sub { font-size: 12.5px; color: var(--ink-3); margin-top: 3px; }
+.modal-close {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  font-size: 14px;
+  color: var(--ink-3);
+  flex-shrink: 0;
+  margin-left: 16px;
+  transition: background .15s, color .15s;
+}
+.modal-close:hover { background: var(--surface-3); color: var(--ink); }
+.modal-body { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 14px; }
+.modal-divider { height: 1px; background: var(--border); margin: 2px 0; }
+.form-row { display: grid; gap: 10px; }
+.form-row.two { grid-template-columns: 1fr 1fr; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-3);
+}
+.form-input {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--ink);
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+}
+.form-input:focus {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(26,25,23,0.07);
+}
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+}
+
+/* ─────── workspace active item ─────── */
+.side-item.workspace-active { background: var(--ink); color: var(--bg); font-weight: 500; }
+.side-item.workspace-active .badge { background: rgba(255,255,255,0.18); color: var(--bg); }
+
+/* ─────── supplier table ─────── */
+.supplier-types { display: flex; flex-wrap: wrap; gap: 4px; }
+.type-pill {
+  padding: 2px 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+/* ─────── supplier drawer ─────── */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,25,23,0.22);
+  z-index: 44;
+  backdrop-filter: blur(1px);
+}
+.supplier-drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 500px;
+  max-width: 100vw;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 45;
+  box-shadow: -8px 0 32px rgba(26,25,23,0.06);
+  display: flex;
+  flex-direction: column;
+  animation: drawer-in .22s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes drawer-in {
+  from { transform: translateX(60px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+.drawer-head {
+  position: sticky; top: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  z-index: 2;
+  flex-shrink: 0;
+}
+.drawer-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.drawer-subtitle {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+.drawer-head-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.drawer-close {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  font-size: 13px;
+  color: var(--ink-3);
+  transition: background .15s, color .15s;
+}
+.drawer-close:hover { background: var(--surface-3); color: var(--ink); }
+.drawer-section {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 22px;
+}
+.drawer-section:last-child { border-bottom: none; }
+.drawer-section-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--ink-4);
+  margin-bottom: 14px;
+}
+.drawer-meta-grid {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 0;
+}
+.drawer-meta-row {
+  display: contents;
+}
+.drawer-meta-key {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+}
+.drawer-meta-val {
+  font-size: 13px;
+  color: var(--ink);
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+.drawer-meta-row:last-child .drawer-meta-key,
+.drawer-meta-row:last-child .drawer-meta-val { border-bottom: none; }
+.drawer-photos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.drawer-photo {
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  position: relative;
+  background: var(--surface-2);
+}
+.drawer-photo svg { width: 100%; height: 100%; display: block; }
+.drawer-photo-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.65) 0%, transparent 100%);
+  color: white;
+  padding: 16px 9px 7px;
+  font-size: 10.5px;
+  font-family: 'Geist Mono', monospace;
+  letter-spacing: 0.03em;
+}
+.drawer-products { display: flex; flex-wrap: wrap; gap: 6px; }
+.product-tag {
+  padding: 5px 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--ink);
+}
+.catalog-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  margin-bottom: 6px;
+}
+.catalog-item:last-child { margin-bottom: 0; }
+.catalog-name { font-size: 13px; font-weight: 500; color: var(--ink); }
+.catalog-meta { font-family: 'Geist Mono', monospace; font-size: 10.5px; color: var(--ink-3); margin-top: 2px; }
+.catalog-download {
+  padding: 5px 11px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+.cert-list { display: flex; flex-direction: column; gap: 6px; }
+.cert-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--green-bg);
+  border: 1px solid #C4E0CB;
+  border-radius: 7px;
+  font-size: 13px;
+  color: var(--green);
+  font-weight: 500;
+}
+.cert-item::before { content: '✓'; font-size: 12px; opacity: 0.8; }
+
+/* edit mode inputs in drawer */
+.drawer-edit-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color .15s;
+}
+.drawer-edit-input:focus { border-color: var(--ink); }
+
+/* ─────── order detail layout ─────── */
+.order-detail-wrap { display: flex; gap: 20px; align-items: flex-start; }
+.order-detail-main { flex: 1; min-width: 0; }
+.order-sidecar {
+  width: 300px; flex-shrink: 0;
+  position: sticky; top: 0;
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  max-height: calc(100vh - 140px);
+}
+.sidecar-head {
+  display: flex; align-items: center;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--surface);
+  padding: 0 4px 0 0;
+}
+.sidecar-tab-bar {
+  display: flex; flex: 1;
+}
+.sidecar-tab-btn {
+  flex: 1; padding: 11px 4px;
+  font-family: 'Geist Mono', monospace; font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--ink-3); text-align: center;
+  border: none; border-bottom: 2px solid transparent;
+  background: none; cursor: pointer; transition: color .15s;
+}
+.sidecar-tab-btn.active { color: var(--ink); border-bottom-color: var(--ink); }
+.sidecar-toggle {
+  width: 28px; height: 28px; flex-shrink: 0;
+  margin: 0 4px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  display: grid; place-items: center;
+  font-size: 11px; color: var(--ink-3); cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.sidecar-toggle:hover { background: var(--surface-3); color: var(--ink); }
+.sidecar-body {
+  padding: 14px; overflow-y: auto; flex: 1;
+}
+.order-sidecar.collapsed .sidecar-body { display: none; }
+
+/* sidecar — client meta rows */
+.sc-meta { display: flex; flex-direction: column; }
+.sc-meta-row {
+  display: grid; grid-template-columns: 90px 1fr;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.sc-meta-row:last-child { border-bottom: none; }
+.sc-meta-k {
+  font-family: 'Geist Mono', monospace; font-size: 9.5px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--ink-3); padding-top: 1px;
+}
+.sc-meta-v { color: var(--ink); }
+
+/* sidecar — timeline */
+.sc-tl { display: flex; flex-direction: column; }
+.sc-tl-item {
+  display: grid; grid-template-columns: 14px 1fr;
+  gap: 10px; padding: 8px 0; position: relative;
+}
+.sc-tl-item::after {
+  content: ''; position: absolute;
+  left: 6px; top: 20px; bottom: -8px;
+  width: 1px; background: var(--border-strong);
+}
+.sc-tl-item:last-child::after { display: none; }
+.sc-tl-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: var(--surface); margin-top: 2px; z-index: 1;
+}
+.sc-tl-item.done .sc-tl-dot { background: var(--ink); border-color: var(--ink); }
+.sc-tl-item.active .sc-tl-dot { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.sc-tl-label { font-size: 11.5px; font-weight: 500; color: var(--ink-3); }
+.sc-tl-item.done .sc-tl-label, .sc-tl-item.active .sc-tl-label { color: var(--ink); }
+.sc-tl-date { font-family: 'Geist Mono', monospace; font-size: 9.5px; color: var(--ink-4); margin-top: 1px; }
+.sc-tl-item.active .sc-tl-date { color: var(--accent); }
+
+/* sidecar — chat */
+.sc-chat { display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; }
+.sc-msg {
+  padding: 9px 11px; border-radius: 10px;
+  font-size: 12px; line-height: 1.45; max-width: 88%;
+}
+.sc-msg.team {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-bottom-left-radius: 3px; color: var(--ink);
+}
+.sc-msg.client-msg {
+  background: var(--ink); color: var(--bg);
+  align-self: flex-end; border-bottom-right-radius: 3px;
+}
+.sc-msg-meta { font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--ink-4); margin-top: 3px; }
+.sc-msg.client-msg .sc-msg-meta { color: rgba(255,255,255,0.45); text-align: right; }
+.sc-composer {
+  display: flex; gap: 6px; padding-top: 10px;
+  border-top: 1px solid var(--border); margin-top: 4px;
+}
+.sc-composer input {
+  flex: 1; padding: 7px 10px;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface-2); font-size: 12px; outline: none;
+}
+.sc-composer input:focus { background: var(--surface); border-color: var(--ink); }
+.sc-composer button {
+  padding: 7px 12px; background: var(--ink); color: var(--bg);
+  border-radius: 6px; font-size: 11px; font-weight: 500;
+}
+
+/* ─────── brief figures (qty + target) ─────── */
+.brief-figures { display: flex; border-top: 1px solid var(--border); }
+.brief-fig { flex: 1; padding: 15px 22px; border-right: 1px solid var(--border); }
+.brief-fig:last-child { border-right: none; }
+.brief-fig-label {
+  font-family: 'Geist Mono', monospace; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--ink-3); margin-bottom: 4px;
+}
+.brief-fig-val {
+  font-family: 'Fraunces', serif; font-weight: 300;
+  font-size: 24px; letter-spacing: -0.02em; color: var(--ink); line-height: 1.1;
+}
+.brief-fig-val small { font-size: 11px; font-family: 'Geist Mono', monospace; font-weight: 400; color: var(--ink-3); }
+
+/* ─────── tech pack attachment ─────── */
+.techpack-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 22px; border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.techpack-icon {
+  width: 34px; height: 34px; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  display: grid; place-items: center; font-size: 14px; flex-shrink: 0;
+}
+.techpack-meta { flex: 1; min-width: 0; }
+.techpack-name { font-size: 12.5px; font-weight: 500; color: var(--ink); }
+.techpack-detail { font-size: 10.5px; color: var(--ink-3); font-family: 'Geist Mono', monospace; margin-top: 1px; }
+
+/* ─────── question thread ─────── */
+.q-thread { display: flex; flex-direction: column; }
+.q-item { padding: 13px 22px; border-bottom: 1px solid var(--border); }
+.q-item:last-child { border-bottom: none; }
+.q-meta { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.q-from { font-size: 11.5px; font-weight: 600; color: var(--ink); }
+.q-from.sl { color: var(--accent); }
+.q-time { font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--ink-3); }
+.q-body { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+.q-composer { padding: 14px 22px; background: var(--surface-2); border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+.q-composer textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); font-size: 13px; color: var(--ink); resize: none; outline: none; font-family: inherit; line-height: 1.4; }
+.q-composer textarea:focus { border-color: var(--ink); }
+
+/* quote issue form */
+.quote-form-body { padding: 18px 22px; display: flex; flex-direction: column; gap: 12px; }
+
+/* responsive ish */
+@media (max-width: 1100px) {
+  .detail-grid { grid-template-columns: 1fr; }
+  .order-grid { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* ──────────────────────────────────────────────────────────
+   DATA
+   ────────────────────────────────────────────────────────── */
+const STAGES = [
+  { key: 'inquiry',         label: 'Inquiry',           short: 'Inquiry'  },
+  { key: 'quoting',         label: 'Quoting',           short: 'Quote'    },
+  { key: 'sampling',        label: 'Sampling',          short: 'Sample'   },
+  { key: 'sample-transit',  label: 'Sample Transit',    short: 'Transit'  },
+  { key: 'sample-review',   label: 'Sample Review',     short: 'Review'   },
+  { key: 'production',      label: 'Production',        short: 'Production' },
+  { key: 'bulk-qc',         label: 'Bulk QC',           short: 'QC'       },
+  { key: 'bulk-shipping',   label: 'Bulk Shipping',     short: 'Shipping' },
+  { key: 'completed',       label: 'Completed',         short: 'Done'     },
+];
+
+const STAGE_COLOR = {
+  'inquiry':'blue','quoting':'amber','sampling':'purple',
+  'sample-transit':'blue','sample-review':'purple','production':'amber',
+  'bulk-qc':'purple','bulk-shipping':'blue','completed':'green',
+};
+
+const CLIENTS = {
+  'atlas-oak':  { name: 'Atlas & Oak',         contact: 'Maya Chen',   country: 'United Kingdom', city: 'London',    phone: '+44 7700 900142',    email: 'maya@atlasandoak.com',          suppliersEngaged: 3 },
+  'meridian':   { name: 'Meridian Supply Co.', contact: 'Tom Reyes',   country: 'Australia',      city: 'Sydney',    phone: '+61 412 345 678',     email: 'tom@meridiansupply.com.au',     suppliersEngaged: 2 },
+  'wildform':   { name: 'Wildform',            contact: 'Lina Park',   country: 'Singapore',      city: 'Singapore', phone: '+65 9123 4567',       email: 'lina@wildform.co',             suppliersEngaged: 1 },
+  'northrun':   { name: 'Northrun Athletic',   contact: 'Marcus Webb', country: 'Germany',        city: 'Berlin',    phone: '+49 151 234 56789',   email: 'marcus@northrunathletic.de',   suppliersEngaged: 2 },
+};
+
+// The currently logged-in client (for client view)
+const CURRENT_CLIENT = 'atlas-oak';
+
+const ORDERS = [
+  {
+    id: 'SL-2026-0148', clientId: 'atlas-oak', stage: 'inquiry',
+    product: 'Organic Cotton Hoodie', category: 'Apparel',
+    quantity: 500, target: 18, refType: 'Full tech pack',
+    updated: '2h ago', submitted: 'Apr 11, 2026',
+    needsAdmin: true, needsClient: false,
+    specs: {
+      'Fabric': '450 GSM organic cotton fleece, brushed inside',
+      'Colors': 'Bone, Forest Green, Charcoal',
+      'Sizes': 'XS – XXL (six sizes)',
+      'Construction': 'Drop shoulder, kangaroo pocket, ribbed cuffs and hem',
+      'Artwork': 'Embroidered chest logo (4 × 3 cm), woven neck label',
+      'Timeline': 'Sept 2026 delivery for AW launch',
+      'Special': 'GOTS certified cotton required',
+    },
+    notes: [
+      { author: 'Maya Chen', role: 'client', body: 'Tech pack attached. Please confirm whether 450 GSM is achievable in fully organic cotton — our last supplier could only get to 380.', when: '2h ago', internal: false },
+    ],
+  },
+  {
+    id: 'SL-2026-0145', clientId: 'atlas-oak', stage: 'quoting',
+    product: 'Recycled Canvas Tote', category: 'Accessories',
+    quantity: 1000, target: 4.5, refType: 'Reference sample',
+    updated: '5h ago', submitted: 'Apr 7, 2026',
+    needsAdmin: false, needsClient: true,
+    specs: {
+      'Fabric': '12oz recycled cotton canvas, natural undyed',
+      'Colors': 'Natural / Black handles',
+      'Dimensions': '38cm W × 42cm H × 12cm gusset',
+      'Construction': 'Reinforced bartack handles, internal slip pocket',
+      'Artwork': 'Single-color screen print, both sides',
+      'Timeline': 'June 2026',
+    },
+    quote: {
+      unit: 3.85, total: 3850, currency: 'USD',
+      leadTime: '45 days', moq: 1000, validity: '14 days',
+      notes: 'Price assumes existing pantone match. Sample lead time 12 days. First sample fee waived against PO.',
+    },
+    notes: [
+      { author: 'SourceLab',  role: 'admin', body: 'Quote shared. Pantone reference confirmed against supplied swatch.', when: '5h ago', internal: false },
+      { author: 'Vrishti', role: 'admin', body: 'Negotiated down from $4.10 — supplier will hold this price for 14 days only. Margin tight, do not push further.', when: '6h ago', internal: true },
+    ],
+  },
+  {
+    id: 'SL-2026-0139', clientId: 'atlas-oak', stage: 'sampling',
+    product: 'Linen Camp Shirt', category: 'Apparel',
+    quantity: 350, target: 14, refType: 'Sketch + reference',
+    updated: 'Yesterday', submitted: 'Mar 28, 2026',
+    needsAdmin: false, needsClient: true,
+    specs: {
+      'Fabric': '180 GSM 100% European linen',
+      'Colors': 'Sand, Sage, Slate',
+      'Sizes': 'S – XL',
+      'Construction': 'Camp collar, two chest pockets, coconut buttons',
+      'Timeline': 'July 2026',
+    },
+    samplePhotos: [
+      { id: 'p1', label: 'Front · Sand', approved: true,  hue: 35, sat: 25 },
+      { id: 'p2', label: 'Collar detail', approved: true, hue: 35, sat: 28 },
+      { id: 'p3', label: 'Back · Sage',  approved: false, hue: 95, sat: 18 },
+      { id: 'p4', label: 'Buttons close-up', approved: false, hue: 200, sat: 12 },
+      { id: 'p5', label: 'Slate flat lay', approved: false, hue: 220, sat: 10 },
+      { id: 'p6', label: 'Inside seam',  approved: false, hue: 35, sat: 25 },
+    ],
+    notes: [
+      { author: 'SourceLab', role: 'admin', body: 'Six sample photos uploaded. Please review each individually — once all six are approved, you can arrange shipping for the physical sample.', when: 'Yesterday', internal: false },
+    ],
+  },
+  {
+    id: 'SL-2026-0131', clientId: 'atlas-oak', stage: 'sample-transit',
+    product: 'Heavyweight Crewneck', category: 'Apparel',
+    quantity: 600, target: 22, refType: 'Full tech pack',
+    updated: '2 days ago', submitted: 'Mar 18, 2026',
+    needsAdmin: false, needsClient: false,
+    specs: {
+      'Fabric': '500 GSM loopback cotton, garment dyed',
+      'Colors': 'Faded Black, Washed Olive',
+      'Sizes': 'XS – XXL',
+      'Timeline': 'August 2026',
+    },
+    tracking: {
+      courier: 'DHL Express',
+      number: '7741 8830 9921',
+      pickup: 'Apr 9, 2026',
+      eta: 'Apr 14, 2026',
+      destination: '14 Redchurch Street, London E2 7DJ, UK',
+    },
+    notes: [
+      { author: 'SourceLab', role: 'admin', body: 'Sample picked up by DHL on April 9. Estimated delivery April 14. We&apos;ll notify you on receipt.', when: '2 days ago', internal: false },
+    ],
+  },
+  {
+    id: 'SL-2026-0124', clientId: 'atlas-oak', stage: 'sample-review',
+    product: 'Boucle Beach Towel', category: 'Homewares',
+    quantity: 800, target: 12, refType: 'Reference sample',
+    updated: '3 days ago', submitted: 'Mar 10, 2026',
+    needsAdmin: false, needsClient: true,
+    specs: {
+      'Fabric': '550 GSM Turkish cotton boucle',
+      'Colors': 'Cream, Terracotta, Indigo',
+      'Dimensions': '90 × 170 cm',
+      'Construction': 'Hand-knotted fringe, jacquard label',
+      'Timeline': 'June 2026 — peak summer launch',
+    },
+    notes: [
+      { author: 'SourceLab', role: 'admin', body: 'Physical sample marked received. Please inspect handfeel, colour accuracy, and fringe finish, then make a decision below.', when: '3 days ago', internal: false },
+    ],
+  },
+  {
+    id: 'SL-2026-0117', clientId: 'atlas-oak', stage: 'production',
+    product: 'Acacia Lid Glass Jar 2.8L', category: 'Food Packaging',
+    quantity: 1000, target: 6.2, refType: 'Reference image',
+    updated: '6h ago', submitted: 'Feb 22, 2026',
+    needsAdmin: false, needsClient: false,
+    specs: {
+      'Material': 'Borosilicate glass jar with FSC-certified acacia wood lid',
+      'Capacity': '2.8 L (95 fl oz)',
+      'Closure': 'Silicone gasket seal, brushed steel clamp',
+      'Branding': 'Etched logo on jar shoulder, branded kraft outer box',
+      'Use case': 'Premium chestnut packaging',
+      'Timeline': 'Mid-May 2026 delivery',
+    },
+    productionFeed: [
+      { title: 'Materials sourced',       body: 'Acacia stock from FSC-certified mill confirmed. Glass blanks in production.', when: 'Mar 18 · 11:42', done: true },
+      { title: 'Pattern cutting complete',body: 'Lids machined and sanded. First 100 units passed dimensional check.', when: 'Mar 27 · 09:10', done: true },
+      { title: 'Sewing in progress',      body: 'Silicone gaskets being fitted. 412/1000 units complete as of this morning.', when: 'Apr 09 · 08:30', done: true },
+      { title: 'Internal QC in progress', body: '', when: '', done: false },
+      { title: 'Ready for final QC',      body: '', when: '', done: false },
+    ],
+    notes: [
+      { author: 'SourceLab', role: 'admin', body: 'Production tracking ahead of schedule. Expect to move to QC by April 22.', when: '6h ago', internal: false },
+      { author: 'Vrishti', role: 'admin', body: 'Supplier flagged a small batch with grain inconsistency on the acacia — replacing 40 units. Do not surface to client unless asked.', when: '1d ago', internal: true },
+    ],
+  },
+  {
+    id: 'SL-2026-0102', clientId: 'atlas-oak', stage: 'bulk-qc',
+    product: 'Performance Cycling Cap', category: 'Accessories',
+    quantity: 750, target: 8.5, refType: 'Full tech pack',
+    updated: '4h ago', submitted: 'Feb 5, 2026',
+    needsAdmin: false, needsClient: true,
+    specs: {
+      'Fabric': 'Recycled polyester ripstop, mesh side panels',
+      'Colors': 'Bone/Black, Olive/Black, Rust/Black',
+      'Sizes': 'S/M, L/XL',
+      'Branding': 'Reflective screen print, woven inner label',
+      'Timeline': 'May 2026',
+    },
+    qcPhotos: [
+      { id: 'q1', label: 'Bulk · Bone front', hue: 40,  sat: 12 },
+      { id: 'q2', label: 'Bulk · Olive front', hue: 80, sat: 22 },
+      { id: 'q3', label: 'Bulk · Rust front', hue: 18,  sat: 55 },
+      { id: 'q4', label: 'Stitching detail',  hue: 0,   sat: 0  },
+      { id: 'q5', label: 'Reflective print',  hue: 0,   sat: 0  },
+      { id: 'q6', label: 'Packaging',         hue: 35,  sat: 18 },
+    ],
+    notes: [
+      { author: 'SourceLab', role: 'admin', body: 'Final QC photos uploaded. Please review and approve to release for shipment, or flag any issues you see.', when: '4h ago', internal: false },
+    ],
+  },
+  {
+    id: 'SL-2026-0089', clientId: 'atlas-oak', stage: 'bulk-shipping',
+    product: 'Merino Hiking Sock', category: 'Apparel',
+    quantity: 1500, target: 5.8, refType: 'Reference sample',
+    updated: '1 day ago', submitted: 'Jan 18, 2026',
+    needsAdmin: false, needsClient: false,
+    specs: {
+      'Fabric': '70% merino / 25% nylon / 5% elastane',
+      'Colors': 'Charcoal, Sand, Forest',
+      'Sizes': 'S, M, L',
+      'Construction': 'Cushioned sole, ankle support panel',
+      'Timeline': 'Apr 2026 — already in transit',
+    },
+    shipping: {
+      tracking: 'MAEU 8839 2210 4',
+      carrier: 'Maersk',
+      shipped: 'Apr 8, 2026',
+      eta: 'May 2, 2026',
+      origin: 'Surabaya, Indonesia',
+      destination: 'Felixstowe, UK',
+      method: 'FOB Surabaya · LCL container',
+    },
+    notes: [
+      { author: 'SourceLab', role: 'admin', body: 'Bulk shipped April 8. ETA Felixstowe May 2. Final balance invoice issued separately.', when: '1d ago', internal: false },
+    ],
+  },
+  {
+    id: 'SL-2025-0061', clientId: 'atlas-oak', stage: 'completed',
+    product: 'Waxed Canvas Crossbody', category: 'Accessories',
+    quantity: 400, target: 28, refType: 'Full tech pack',
+    updated: 'Mar 02, 2026', submitted: 'Nov 10, 2025',
+    needsAdmin: false, needsClient: false,
+    specs: {
+      'Fabric': '14oz waxed cotton canvas, vegetable-tanned leather trim',
+      'Colors': 'Field Tan, Forest, Black',
+      'Dimensions': '24 × 18 × 8 cm',
+      'Construction': 'Solid brass hardware, adjustable webbing strap',
+      'Timeline': 'Delivered Mar 2, 2026',
+    },
+    completedSummary: {
+      finalUnit: 24.40,
+      finalTotal: 9760,
+      delivered: 'March 2, 2026',
+      leadTotal: '112 days inquiry → delivery',
+      sellThrough: 'Restock-ready',
+    },
+    notes: [
+      { author: 'SourceLab', role: 'admin', body: 'Delivered to fulfilment partner March 2. Restock available — same specs, same supplier, 6 week lead time.', when: 'Mar 02', internal: false },
+    ],
+  },
+
+  /* extra orders for admin view density */
+  {
+    id: 'SL-2026-0147', clientId: 'meridian', stage: 'inquiry',
+    product: 'Heavy Workshop Apron', category: 'Apparel',
+    quantity: 250, target: 32, refType: 'Sketch',
+    updated: '4h ago', submitted: 'Apr 11, 2026',
+    needsAdmin: true, needsClient: false,
+    specs: { 'Fabric': '18oz selvedge denim, leather chest panel', 'Colors': 'Indigo only', 'Timeline': 'August 2026' },
+    notes: [],
+  },
+  {
+    id: 'SL-2026-0146', clientId: 'wildform', stage: 'quoting',
+    product: 'Ceramic Pour-Over Cone', category: 'Homewares',
+    quantity: 600, target: 11, refType: 'Reference image',
+    updated: '1 day ago', submitted: 'Apr 4, 2026',
+    needsAdmin: false, needsClient: true,
+    specs: { 'Material': 'High-fired stoneware, matte glaze', 'Colors': 'Bone, Earth, Slate', 'Timeline': 'July 2026' },
+    quote: { unit: 9.20, total: 5520, currency: 'USD', leadTime: '50 days', moq: 600, validity: '10 days', notes: 'Glaze samples included.' },
+    notes: [],
+  },
+  {
+    id: 'SL-2026-0140', clientId: 'northrun', stage: 'production',
+    product: 'Trail Running Vest', category: 'Apparel',
+    quantity: 900, target: 38, refType: 'Full tech pack',
+    updated: '2 days ago', submitted: 'Mar 30, 2026',
+    needsAdmin: false, needsClient: false,
+    specs: { 'Fabric': 'Recycled ripstop nylon shell, mesh body', 'Colors': 'Black, Sulphur', 'Timeline': 'June 2026' },
+    productionFeed: [
+      { title: 'Materials sourced', body: 'Mesh and webbing in.', when: 'Apr 02 · 10:00', done: true },
+      { title: 'Pattern cutting complete', body: 'All sizes cut.', when: 'Apr 06 · 14:30', done: true },
+      { title: 'Sewing in progress', body: '300/900 units.', when: 'Apr 09 · 09:00', done: true },
+      { title: 'Internal QC in progress', body: '', when: '', done: false },
+      { title: 'Ready for final QC', body: '', when: '', done: false },
+    ],
+    notes: [],
+  },
+];
+
+const SUPPLIERS = [
+  {
+    id: 'evergreen-tex', name: 'Evergreen Textiles Co.', country: 'China', city: 'Guangzhou',
+    contact: 'Wei Zhang', phone: '+86 139 2345 6789', wechat: 'wzhang_etco', email: 'wei.zhang@evergreentex.com',
+    types: ['Apparel', 'Accessories'],
+    activeProjects: 3,
+    about: 'Mid-tier CMT factory specialising in cotton knits and woven garments. Consistent quality at mid-volume, strong track record on organic certifications.',
+    founded: '2008', employees: '200–500', factorySize: '12,000 sqm', moq: 300, leadTime: '45–60 days',
+    photos: [
+      { label: 'Production floor', hue: 210, sat: 8 },
+      { label: 'Cutting room',     hue: 200, sat: 6 },
+      { label: 'QC station',       hue: 215, sat: 5 },
+      { label: 'Finished goods',   hue: 35,  sat: 14 },
+    ],
+    products: ['Hoodies', 'Sweatshirts', 'T-shirts', 'Shorts', 'Tote Bags', 'Caps'],
+    catalogs: [
+      { name: 'SS2026 Full Catalog',          size: '4.2 MB', date: 'Feb 2026' },
+      { name: 'Organic Cotton Spec Sheet',    size: '1.1 MB', date: 'Jan 2026' },
+    ],
+    certifications: ['GOTS', 'OEKO-TEX Standard 100', 'ISO 9001:2015'],
+  },
+  {
+    id: 'sunrise-leather', name: 'Sunrise Leather Works', country: 'India', city: 'Kolkata',
+    contact: 'Priya Sharma', phone: '+91 98300 12345', wechat: null, email: 'priya@sunriseleather.in',
+    types: ['Accessories', 'Leather Goods'],
+    activeProjects: 1,
+    about: 'Family-run tannery and accessories manufacturer with over 30 years of export experience. Vegetable-tanned and chrome-free leathers are a speciality.',
+    founded: '1991', employees: '50–200', factorySize: '4,200 sqm', moq: 150, leadTime: '60–75 days',
+    photos: [
+      { label: 'Tannery floor',    hue: 28,  sat: 35 },
+      { label: 'Cutting bench',    hue: 32,  sat: 28 },
+      { label: 'Stitching room',   hue: 26,  sat: 30 },
+      { label: 'Finished bags',    hue: 22,  sat: 25 },
+    ],
+    products: ['Crossbody Bags', 'Wallets', 'Belts', 'Backpacks', 'Key Fobs'],
+    catalogs: [
+      { name: 'Leather Goods Lookbook 2026', size: '6.7 MB', date: 'Mar 2026' },
+    ],
+    certifications: ['LWG Gold-Rated', 'ISO 14001:2015'],
+  },
+  {
+    id: 'atelier-ceramique', name: 'Atelier Céramique Lda.', country: 'Portugal', city: 'Caldas da Rainha',
+    contact: 'João Ferreira', phone: '+351 912 345 678', wechat: null, email: 'joao@atelierceramique.pt',
+    types: ['Homeware'],
+    activeProjects: 1,
+    about: 'Artisan studio and mid-scale ceramics manufacturer. Specialises in hand-thrown and slip-cast stoneware for lifestyle and food-safe tableware brands.',
+    founded: '2014', employees: '20–50', factorySize: '1,800 sqm', moq: 200, leadTime: '50–70 days',
+    photos: [
+      { label: 'Throwing studio',  hue: 30,  sat: 20 },
+      { label: 'Glaze station',    hue: 195, sat: 18 },
+      { label: 'Kiln room',        hue: 18,  sat: 30 },
+      { label: 'Packaged goods',   hue: 38,  sat: 12 },
+    ],
+    products: ['Pour-Over Cones', 'Mugs', 'Bowls', 'Plates', 'Vases', 'Planters'],
+    catalogs: [
+      { name: '2026 Stoneware Collection', size: '3.1 MB', date: 'Jan 2026' },
+      { name: 'Glaze Colour Reference',    size: '0.8 MB', date: 'Dec 2025' },
+    ],
+    certifications: ['EU Food-Safe Certified', 'REACH Compliant'],
+  },
+  {
+    id: 'pacific-activewear', name: 'Pacific Activewear PT.', country: 'Indonesia', city: 'Surabaya',
+    contact: 'Andi Santoso', phone: '+62 812 3456 7890', wechat: null, email: 'andi@pacificactivewear.co.id',
+    types: ['Apparel'],
+    activeProjects: 2,
+    about: 'Performance-focused apparel factory with strong capability in technical fabrics — ripstop nylon, recycled polyester, and stretch-woven constructions. ISO and WRAP certified.',
+    founded: '2005', employees: '500–1000', factorySize: '28,000 sqm', moq: 500, leadTime: '40–55 days',
+    photos: [
+      { label: 'Main production', hue: 220, sat: 10 },
+      { label: 'Pattern room',    hue: 225, sat: 8  },
+      { label: 'QC line',         hue: 210, sat: 7  },
+      { label: 'Bulk packing',    hue: 215, sat: 6  },
+    ],
+    products: ['Running Vests', 'Cycling Jerseys', 'Hiking Pants', 'Base Layers', 'Sports Caps'],
+    catalogs: [
+      { name: 'Technical Fabrics Spec Sheet', size: '2.4 MB', date: 'Feb 2026' },
+    ],
+    certifications: ['WRAP', 'ISO 9001:2015', 'bluesign®'],
+  },
+  {
+    id: 'nordic-mills', name: 'Nordic Mills ApS', country: 'Denmark', city: 'Herning',
+    contact: 'Sofie Andersen', phone: '+45 26 12 34 56', wechat: null, email: 'sofie@nordicmills.dk',
+    types: ['Apparel'],
+    activeProjects: 0,
+    about: 'Premium woven and knit mill producing small-batch seasonal collections. Particularly strong in Merino and recycled-fibre knits for heritage and outdoor brands.',
+    founded: '1987', employees: '50–200', factorySize: '6,500 sqm', moq: 100, leadTime: '70–90 days',
+    photos: [
+      { label: 'Knitting floor',    hue: 200, sat: 15 },
+      { label: 'Dyeing room',       hue: 180, sat: 20 },
+      { label: 'Finishing press',   hue: 205, sat: 12 },
+      { label: 'Sample archive',    hue: 210, sat: 10 },
+    ],
+    products: ['Merino Socks', 'Knitwear', 'Scarves', 'Base Layers'],
+    catalogs: [
+      { name: 'AW2026 Merino Collection', size: '5.0 MB', date: 'Mar 2026' },
+    ],
+    certifications: ['GOTS', 'Bluesign', 'ZQ Merino'],
+  },
+];
+
+/* Augment orders with tech packs and question threads */
+(function() {
+  const aug = {
+    'SL-2026-0148': {
+      techPack: { name: 'AO_Hoodie_TechPack_v3.pdf', size: '2.4 MB', pages: 12, uploaded: 'Apr 11, 2026' },
+      questions: [
+        { from: 'SourceLab', body: 'Can you confirm the GOTS certification is required for all three colorways, or only the natural undyed base?', when: '1h ago' },
+      ],
+    },
+    'SL-2026-0145': {
+      techPack: { name: 'Tote_Reference_Swatch.pdf', size: '0.9 MB', pages: 3, uploaded: 'Apr 7, 2026' },
+      questions: [],
+    },
+    'SL-2026-0139': {
+      techPack: { name: 'Linen_CampShirt_Sketch_v2.pdf', size: '1.6 MB', pages: 6, uploaded: 'Mar 28, 2026' },
+      questions: [],
+      sampleIterations: [
+        {
+          version: 1, status: 'completed',
+          submittedAt: 'Apr 3, 2026',
+          photos: [
+            { id: 'v1-a', hue: 42, sat: 0.3, label: 'Front view' },
+            { id: 'v1-b', hue: 42, sat: 0.3, label: 'Back view' },
+            { id: 'v1-c', hue: 42, sat: 0.3, label: 'Collar detail' },
+          ],
+          clientDecision: 'changes-requested',
+          changeNotes: 'Collar is too stiff — needs softer interlining. Adjust placket width to 2.5 cm as per spec.',
+        },
+        {
+          version: 2, status: 'current',
+          submittedAt: 'Apr 13, 2026',
+          photos: [
+            { id: 'v2-a', hue: 42, sat: 0.35, label: 'Front view' },
+            { id: 'v2-b', hue: 42, sat: 0.35, label: 'Back view' },
+            { id: 'v2-c', hue: 42, sat: 0.35, label: 'Collar detail' },
+            { id: 'v2-d', hue: 42, sat: 0.35, label: 'Placket close-up' },
+          ],
+          clientDecision: null,
+          changeNotes: null,
+        },
+      ],
+    },
+    'SL-2026-0131': {
+      techPack: { name: 'Crewneck_Full_TechPack.pdf', size: '3.1 MB', pages: 18, uploaded: 'Mar 18, 2026' },
+      questions: [],
+    },
+  };
+  ORDERS.forEach(o => { if (aug[o.id]) Object.assign(o, aug[o.id]); });
+})();
+
+/* ──────────────────────────────────────────────────────────
+   STATE
+   ────────────────────────────────────────────────────────── */
+const state = {
+  view: 'admin',           // 'admin' | 'client'
+  page: 'dashboard',       // 'dashboard' | 'order' | 'intake' | 'clients' | 'suppliers'
+  filter: 'all',           // sidebar filter (admin/client)
+  selectedOrderId: null,
+  orderTab: 'brief',
+  intakeStep: 1,
+  modal: null,             // null | 'add-client' | 'add-supplier'
+  selectedSupplierId: null,
+  supplierEditMode: false,
+  sidebarOpen: true,
+  sidecarOpen: true,
+  sidecarTab: 'client',    // 'client' | 'timeline' | 'support'
+  orderSubState: null,     // null | 'quote-form' | 'ask-question'
+};
+
+// per-photo runtime approval (so client can click and toggle)
+const photoApprovals = {};
+ORDERS.forEach(o => {
+  if (o.samplePhotos) photoApprovals[o.id] = Object.fromEntries(o.samplePhotos.map(p => [p.id, p.approved]));
+  if (o.sampleIterations) {
+    o.sampleIterations.forEach(iter => {
+      const key = o.id + '-v' + iter.version;
+      if (iter.photos) photoApprovals[key] = Object.fromEntries(iter.photos.map(p => [p.id, false]));
+    });
+  }
+});
+
+/* ──────────────────────────────────────────────────────────
+   HELPERS
+   ────────────────────────────────────────────────────────── */
+const stageIndex = key => STAGES.findIndex(s => s.key === key);
+const visibleOrders = () => state.view === 'admin' ? ORDERS : ORDERS.filter(o => o.clientId === CURRENT_CLIENT);
+const stageLabel = key => STAGES.find(s => s.key === key)?.label || key;
+const fmtUSD = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function statusBadge(stage) {
+  return `<span class="badge-status ${STAGE_COLOR[stage]}">${stageLabel(stage)}</span>`;
+}
+
+function svgProductThumb(category) {
+  const c = (category || '').toLowerCase();
+  if (c === 'accessories') return `
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="11" y="20" width="26" height="20" rx="2" fill="#E8E3D7" stroke="#D6CFBE" stroke-width="1"/>
+      <path d="M18 20 L18 15 Q18 10 24 10 Q30 10 30 15 L30 20" stroke="#D6CFBE" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <line x1="11" y1="27" x2="37" y2="27" stroke="#D6CFBE" stroke-width="1"/>
+    </svg>`;
+  if (c === 'homeware' || c === 'homewares') return `
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 18 L15 38 L33 38 L35 18 Z" fill="#E8E3D7" stroke="#D6CFBE" stroke-width="1" stroke-linejoin="round"/>
+      <ellipse cx="24" cy="18" rx="11" ry="3.5" fill="#E8E3D7" stroke="#D6CFBE" stroke-width="1"/>
+      <path d="M35 22 C40 22 42 27 39 30 C37 32 35 32 35 32" stroke="#D6CFBE" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    </svg>`;
+  /* default: Apparel — T-shirt */
+  return `
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17 8 C17 12 13 14 9 13 L5 21 L13 24 L13 40 L35 40 L35 24 L43 21 L39 13 C35 14 31 12 31 8 C29 12 19 12 17 8 Z" fill="#E8E3D7" stroke="#D6CFBE" stroke-width="1" stroke-linejoin="round"/>
+    </svg>`;
+}
+
+function svgFabric(hue, sat, label) {
+  // procedural pseudo-fabric swatch SVG
+  const bg = `hsl(${hue}, ${sat}%, ${72 - sat/4}%)`;
+  const fg = `hsl(${hue}, ${sat}%, ${55 - sat/4}%)`;
+  return `
+    <svg class="photo-svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <rect width="200" height="200" fill="${bg}"/>
+      <g stroke="${fg}" stroke-width="0.6" opacity="0.45">
+        ${Array.from({length:25}, (_,i)=>`<line x1="${i*8}" y1="0" x2="${i*8-30}" y2="200"/>`).join('')}
+        ${Array.from({length:25}, (_,i)=>`<line y1="${i*8}" x1="0" y2="${i*8-30}" x2="200"/>`).join('')}
+      </g>
+      <circle cx="60" cy="80" r="40" fill="${fg}" opacity="0.18"/>
+      <circle cx="160" cy="150" r="55" fill="${fg}" opacity="0.12"/>
+      <text x="14" y="180" font-family="Geist Mono, monospace" font-size="9" fill="${fg}" opacity="0.55">${(label||'').toUpperCase()}</text>
+    </svg>
+  `;
+}
+
+/* ──────────────────────────────────────────────────────────
+   HEADER
+   ────────────────────────────────────────────────────────── */
+function renderHeader() {
+  const adminPending = ORDERS.filter(o => o.needsAdmin).length;
+  const clientPending = ORDERS.filter(o => o.clientId === CURRENT_CLIENT && o.needsClient).length;
+  return `
+    <header class="header">
+      <div class="logo">
+        <div class="logo-mark">S</div>
+        <div class="logo-name"><b>SourceLab</b> <span>· Portal</span></div>
+      </div>
+      <div class="role-switcher">
+        <button class="${state.view==='admin'?'active':''}" data-action="switch-view" data-view="admin">
+          <span class="dot"></span> Admin
+        </button>
+        <button class="${state.view==='client'?'active':''}" data-action="switch-view" data-view="client">
+          <span class="dot"></span> Client
+        </button>
+      </div>
+      <div class="header-spacer"></div>
+      <div class="header-meta">
+        ${state.view === 'admin'
+          ? `<div class="pill"><span style="color:var(--accent)">●</span> ${adminPending} need action</div>
+             <div class="pill">All clients</div>`
+          : `<div class="pill">${clientPending} awaiting you</div>
+             <div class="pill">${CLIENTS[CURRENT_CLIENT].name}</div>`}
+        <div class="avatar">${state.view === 'admin' ? 'V' : 'M'}</div>
+      </div>
+    </header>
+    ${renderContextRibbon()}
+  `;
+}
+
+function renderContextRibbon() {
+  const text = state.view === 'admin'
+    ? `<span class="context-ribbon-dot"></span> Viewing as <b>Admin</b> · You can see internal notes, supplier details, and all clients · Switch above to preview the client-facing experience`
+    : `<span class="context-ribbon-dot"></span> Viewing as <b>${CLIENTS[CURRENT_CLIENT].name}</b> · This is exactly what your client sees — no margin, no supplier names, no other clients`;
+  return `<div class="context-ribbon">${text}</div>`;
+}
+
+/* ──────────────────────────────────────────────────────────
+   SIDEBAR
+   ────────────────────────────────────────────────────────── */
+function renderSidebar() {
+  const orders = visibleOrders();
+
+  if (state.view === 'admin') {
+    const countInquiries   = orders.filter(o => ['inquiry','quoting'].includes(o.stage)).length;
+    const countDevelopment = orders.filter(o => ['sampling','sample-transit','sample-review'].includes(o.stage)).length;
+    const countOrders      = orders.filter(o => ['production','bulk-qc','bulk-shipping','completed'].includes(o.stage)).length;
+    return `
+      <aside class="sidebar${state.sidebarOpen ? '' : ' collapsed'}">
+        <button class="sidebar-collapse-btn" data-action="toggle-sidebar">${state.sidebarOpen ? '‹' : '›'}</button>
+        <div class="side-section">
+          <div class="side-label">Operations</div>
+          ${sideItem('all','Dashboard')}
+          ${sideItem('inquiries','Inquiries & Quotes', countInquiries)}
+          ${sideItem('development','Product Development', countDevelopment)}
+          ${sideItem('orders','Orders', countOrders)}
+        </div>
+        <div class="side-section">
+          <div class="side-label">Workspace</div>
+          <button class="side-item ${state.page==='clients'?'workspace-active':''}" data-action="goto-clients">Clients <span class="badge">${Object.keys(CLIENTS).length}</span></button>
+          <button class="side-item ${state.page==='suppliers'?'workspace-active':''}" data-action="goto-suppliers">Suppliers <span class="badge">${SUPPLIERS.length}</span></button>
+          <button class="side-item">Knowledge Base &amp; Resources</button>
+          <button class="side-item">Settings</button>
+        </div>
+      </aside>
+    `;
+  }
+
+  const countInquiries   = orders.filter(o => ['inquiry','quoting'].includes(o.stage)).length;
+  const countDevelopment = orders.filter(o => ['sampling','sample-transit','sample-review'].includes(o.stage)).length;
+  const countOrders      = orders.filter(o => ['production','bulk-qc','bulk-shipping','completed'].includes(o.stage)).length;
+
+  return `
+    <aside class="sidebar${state.sidebarOpen ? '' : ' collapsed'}">
+      <button class="sidebar-collapse-btn" data-action="toggle-sidebar">${state.sidebarOpen ? '‹' : '›'}</button>
+      <div class="side-section">
+        <div class="side-label">Navigate</div>
+        ${sideItem('all','Dashboard')}
+        ${sideItem('inquiries','Inquiries & Quotes', countInquiries)}
+        ${sideItem('development','Product Development', countDevelopment)}
+        ${sideItem('orders','Orders', countOrders)}
+      </div>
+      <div class="side-section">
+        <div class="side-label">Account</div>
+        <button class="side-item">Payments & Invoices</button>
+        <button class="side-item">Addresses</button>
+        <button class="side-item">Profile</button>
+      </div>
+      <div class="side-cta">
+        <div class="side-cta-title">New product?</div>
+        <div class="side-cta-body">Upload a tech pack or sketch and our AI will draft your brief in 60 seconds.</div>
+        <button data-action="goto-intake">+  Start an inquiry</button>
+      </div>
+    </aside>
+  `;
+}
+
+function sideItem(filter, label, count) {
+  const active = state.page === 'dashboard' && state.filter === filter;
+  return `<button class="side-item ${active?'active':''}" data-action="set-filter" data-filter="${filter}">
+    ${label}${count !== undefined ? `<span class="badge">${count}</span>` : ''}
+  </button>`;
+}
+
+/* ──────────────────────────────────────────────────────────
+   ADMIN DASHBOARD
+   ────────────────────────────────────────────────────────── */
+function renderAdminDashboard() {
+  const total = ORDERS.length;
+  const needsAction = ORDERS.filter(o => o.needsAdmin).length;
+  const inSampling = ORDERS.filter(o => ['sampling','sample-transit','sample-review'].includes(o.stage)).length;
+  const inProduction = ORDERS.filter(o => o.stage === 'production').length;
+
+  let filtered = ORDERS;
+  const f = state.filter;
+  if (f === 'inquiries')        filtered = ORDERS.filter(o => ['inquiry','quoting'].includes(o.stage));
+  else if (f === 'development') filtered = ORDERS.filter(o => ['sampling','sample-transit','sample-review'].includes(o.stage));
+  else if (f === 'orders')      filtered = ORDERS.filter(o => ['production','bulk-qc','bulk-shipping','completed'].includes(o.stage));
+
+  const SECTION_LABELS = { all: 'All projects', inquiries: 'Inquiries & Quotes', development: 'Product Development', orders: 'Orders' };
+  const SECTION_SUBS   = {
+    all: 'Every active order across all stages',
+    inquiries: 'New briefs being triaged and quotes awaiting client response',
+    development: 'Orders currently in sampling, transit, or physical review',
+    orders: 'Orders in production, QC, shipping, or completed',
+  };
+
+  const isDashboard = f === 'all';
+
+  return `
+    ${isDashboard ? `
+    <div class="page-eyebrow">Operations · April 11, 2026</div>
+    <h1 class="page-title">Good morning, <em>Vrishti</em>.</h1>
+    <p class="page-sub">${needsAction} orders are waiting on you this morning. Two new inquiries arrived overnight from London and Sydney — both look qualified.</p>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Active orders <span class="corner-dot"></span></div>
+        <div class="metric-value">${total}</div>
+        <div class="metric-trend"><b>+3</b> vs. last week</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Needs action</div>
+        <div class="metric-value">${needsAction}</div>
+        <div class="metric-trend warn"><b>2 inquiries</b> · 0 quote responses</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">In sampling</div>
+        <div class="metric-value">${inSampling}</div>
+        <div class="metric-trend">avg <b>9 days</b> in stage</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">In production</div>
+        <div class="metric-value">${inProduction}</div>
+        <div class="metric-trend">$32K committed</div>
+      </div>
+    </div>
+    ` : `
+    <div class="page-eyebrow">Operations · ${SECTION_LABELS[f]}</div>
+    <h1 class="page-title"><em>${SECTION_LABELS[f]}</em></h1>
+    <p class="page-sub">${SECTION_SUBS[f]}</p>
+    `}
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">${SECTION_LABELS[f] || 'All projects'}</div>
+          <div class="card-title-sub">${filtered.length} ${filtered.length === 1 ? 'order' : 'orders'} · sorted by recent activity</div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-secondary btn-sm">Filter</button>
+          <button class="btn btn-secondary btn-sm">Export</button>
+        </div>
+      </div>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th style="width:140px">Order</th>
+            <th>Product</th>
+            <th>Client</th>
+            <th style="width:80px">Qty</th>
+            <th style="width:160px">Status</th>
+            <th style="width:120px">Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(o => `
+            <tr class="row" data-action="open-order" data-id="${o.id}">
+              <td class="id-cell">${o.id}</td>
+              <td>
+                <span class="product-name">${o.product}</span>
+                <span class="product-cat">${o.category}</span>
+                ${o.needsAdmin ? `<div class="action-prompt">Action needed</div>` : ''}
+              </td>
+              <td>${CLIENTS[o.clientId].name}<br><span class="updated">${CLIENTS[o.clientId].country}</span></td>
+              <td class="qty">${o.quantity.toLocaleString()}</td>
+              <td>${statusBadge(o.stage)}</td>
+              <td class="updated">${o.updated}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+/* ──────────────────────────────────────────────────────────
+   CLIENT DASHBOARD
+   ────────────────────────────────────────────────────────── */
+function renderClientOrdersTable(rows, showNewInquiry) {
+  if (rows.length === 0) {
+    return `<div class="card"><div class="empty-state">No orders in this stage yet.</div></div>`;
+  }
+  return `
+    <div class="card">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th style="width:56px"></th>
+            <th>Product</th>
+            <th style="width:80px">Qty</th>
+            <th style="width:160px">Status</th>
+            <th style="width:180px">Progress</th>
+            <th style="width:110px">Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(o => {
+            const idx = stageIndex(o.stage);
+            const pct = Math.round(((idx + 1) / STAGES.length) * 100);
+            return `
+              <tr class="row" data-action="open-order" data-id="${o.id}">
+                <td><div class="product-thumb">${svgProductThumb(o.category)}</div></td>
+                <td>
+                  <span class="product-name">${o.product}</span>
+                  <span class="product-cat">${o.id}</span>
+                  ${o.needsClient ? `<div class="action-prompt">Awaiting your input</div>` : ''}
+                </td>
+                <td class="qty">${o.quantity.toLocaleString()}</td>
+                <td>${statusBadge(o.stage)}</td>
+                <td>
+                  <div class="mini-progress"><div class="mini-progress-fill" style="width:${pct}%"></div></div>
+                  <div style="font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink-3);letter-spacing:0.04em;">Stage ${idx+1}/9 · ${stageLabel(o.stage)}</div>
+                </td>
+                <td class="updated">${o.updated}</td>
+              </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function renderClientDashboard() {
+  const orders = visibleOrders();
+  const needsClient = orders.filter(o => o.needsClient);
+
+  const cntInquiries   = orders.filter(o => ['inquiry','quoting'].includes(o.stage)).length;
+  const cntDevelopment = orders.filter(o => ['sampling','sample-transit','sample-review'].includes(o.stage)).length;
+  const cntProduction  = orders.filter(o => ['production','bulk-qc','bulk-shipping'].includes(o.stage)).length;
+
+  let filtered = orders;
+  const f = state.filter;
+  if (f === 'inquiries')        filtered = orders.filter(o => ['inquiry','quoting'].includes(o.stage));
+  else if (f === 'development') filtered = orders.filter(o => ['sampling','sample-transit','sample-review'].includes(o.stage));
+  else if (f === 'orders')      filtered = orders.filter(o => ['production','bulk-qc','bulk-shipping','completed'].includes(o.stage));
+
+  const SECTION_META = {
+    inquiries:   { eyebrow: 'Inquiries & Quotes',   title: 'Your open inquiries',       sub: 'New briefs and active quotes awaiting your response.' },
+    development: { eyebrow: 'Product Development',  title: 'Sampling & review',         sub: 'Orders currently in sampling, transit, or awaiting your physical sample review.' },
+    orders:      { eyebrow: 'Orders',               title: 'In production & shipping',  sub: 'Orders that have entered manufacturing, QC, or are on their way to you.' },
+  };
+
+  if (f !== 'all' && SECTION_META[f]) {
+    const meta = SECTION_META[f];
+    return `
+      <div class="page-eyebrow">Atlas & Oak · ${meta.eyebrow}</div>
+      <h1 class="page-title"><em>${meta.title}</em></h1>
+      <p class="page-sub">${meta.sub}</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-size:12px;color:var(--ink-3);">${filtered.length} ${filtered.length===1?'order':'orders'}</div>
+        ${f === 'inquiries' ? `<button class="btn btn-primary" data-action="goto-intake">+  Start a new inquiry</button>` : ''}
+      </div>
+      ${renderClientOrdersTable(filtered)}
+    `;
+  }
+
+  // Dashboard (f === 'all')
+  return `
+    <div class="page-eyebrow">Atlas & Oak · London</div>
+    <h1 class="page-title">Welcome back, <em>Maya</em>.</h1>
+    <p class="page-sub">${needsClient.length > 0
+      ? `${needsClient.length} ${needsClient.length===1?'order needs':'orders need'} your input today — a quote to review, sample photos to approve, and final QC waiting on sign-off.`
+      : 'Everything is on track. Your team will reach out as soon as the next milestone is ready.'}</p>
+
+    <div class="metrics" style="grid-template-columns:repeat(3,1fr);">
+      <div class="metric">
+        <div class="metric-label">Inquiries</div>
+        <div class="metric-value">${cntInquiries}</div>
+        <div class="metric-trend">inquiry + quoting stages</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">In Product Development <span class="corner-dot"></span></div>
+        <div class="metric-value">${cntDevelopment}</div>
+        <div class="metric-trend warn">sampling · transit · review</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">In Production</div>
+        <div class="metric-value">${cntProduction}</div>
+        <div class="metric-trend">production · QC · shipping</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div>
+        <div style="font-size:14px;font-weight:600;">All orders</div>
+        <div style="font-size:12px;color:var(--ink-3);margin-top:2px;">${orders.length} ${orders.length===1?'order':'orders'}</div>
+      </div>
+      <button class="btn btn-primary" data-action="goto-intake">+  Start a new inquiry</button>
+    </div>
+    ${renderClientOrdersTable(orders)}
+  `;
+}
+
+/* ──────────────────────────────────────────────────────────
+   ORDER DETAIL
+   ────────────────────────────────────────────────────────── */
+function defaultTabForStage(stage) {
+  if (stage === 'inquiry') return 'brief';
+  if (stage === 'quoting') return 'inquiry-quotes';
+  if (['sampling','sample-transit','sample-review'].includes(stage)) return 'product-dev';
+  return 'orders';
+}
+
+function renderOrderDetail() {
+  const order = ORDERS.find(o => o.id === state.selectedOrderId);
+  if (!order) return '<div class="empty-state">Order not found.</div>';
+  const client = CLIENTS[order.clientId];
+  const idx = stageIndex(order.stage);
+
+  return `
+    <button class="detail-back" data-action="back-to-dashboard">← Back to ${state.view==='admin'?'all orders':'your orders'}</button>
+
+    <div class="detail-header" style="margin-bottom:20px;">
+      <div>
+        <div class="detail-eyebrow">
+          <span class="mono">${order.id}</span>
+          <span>${order.category}</span>
+          <span>${order.quantity.toLocaleString()} units</span>
+        </div>
+        <h1 class="detail-title">${order.product}</h1>
+        <div class="detail-client">${state.view==='admin' ? `${client.name} · ${client.contact}` : `Submitted ${order.submitted}`}</div>
+      </div>
+      <div style="text-align:right">
+        ${statusBadge(order.stage)}
+        <div style="margin-top:8px;font-family:'Geist Mono',monospace;font-size:11px;color:var(--ink-3);">Step ${idx+1} of 9 · Updated ${order.updated}</div>
+      </div>
+    </div>
+
+    <div class="order-detail-wrap">
+      <div class="order-detail-main">
+        <div class="tabs">
+          ${orderTabBtn('brief','Product Brief', false)}
+          ${orderTabBtn('inquiry-quotes','Inquiry & Quotes', false)}
+          ${orderTabBtn('product-dev','Product Development', false)}
+          ${orderTabBtn('orders','Orders', false)}
+        </div>
+        ${renderOrderTabContent(order)}
+      </div>
+      ${renderSidecar(order, client, idx)}
+    </div>
+  `;
+}
+
+function orderTabBtn(key, label, dot) {
+  return `<button class="tab ${state.orderTab===key?'active':''}" data-action="set-tab" data-tab="${key}">
+    ${label}${dot?'<span class="tab-dot"></span>':''}
+  </button>`;
+}
+
+function renderOrderTabContent(order) {
+  switch (state.orderTab) {
+    case 'brief':           return renderProductBriefTab(order);
+    case 'inquiry-quotes':  return renderInquiryQuotesTab(order);
+    case 'product-dev':     return renderProductDevTab(order);
+    case 'orders':          return renderOrdersTab(order);
+    default:                return renderProductBriefTab(order);
+  }
+}
+
+/* ── sidecar ── */
+function renderSidecar(order, client, idx) {
+  const t = state.sidecarTab;
+  const isAdmin = state.view === 'admin';
+
+  let body = '';
+  if (t === 'client') {
+    body = `
+      <div class="sc-meta">
+        ${isAdmin ? `
+          <div class="sc-meta-row"><div class="sc-meta-k">Client</div><div class="sc-meta-v">${client.name}</div></div>
+          <div class="sc-meta-row"><div class="sc-meta-k">Contact</div><div class="sc-meta-v">${client.contact}</div></div>
+          <div class="sc-meta-row"><div class="sc-meta-k">Country</div><div class="sc-meta-v">${client.country}</div></div>
+          <div class="sc-meta-row"><div class="sc-meta-k">Email</div><div class="sc-meta-v" style="font-family:'Geist Mono',monospace;font-size:11px;">${client.email || '—'}</div></div>
+          <div class="sc-meta-row"><div class="sc-meta-k">Phone</div><div class="sc-meta-v" style="font-family:'Geist Mono',monospace;font-size:11px;">${client.phone || '—'}</div></div>
+        ` : `
+          <div class="sc-meta-row"><div class="sc-meta-k">Submitted</div><div class="sc-meta-v">${order.submitted}</div></div>
+        `}
+        <div class="sc-meta-row"><div class="sc-meta-k">Order ID</div><div class="sc-meta-v" style="font-family:'Geist Mono',monospace;font-size:11px;">${order.id}</div></div>
+        <div class="sc-meta-row"><div class="sc-meta-k">Reference</div><div class="sc-meta-v">${order.refType}</div></div>
+        <div class="sc-meta-row"><div class="sc-meta-k">Quantity</div><div class="sc-meta-v">${order.quantity.toLocaleString()} units</div></div>
+        <div class="sc-meta-row"><div class="sc-meta-k">Target</div><div class="sc-meta-v">${fmtUSD(order.target)} / unit</div></div>
+        <div class="sc-meta-row"><div class="sc-meta-k">Stage</div><div class="sc-meta-v">${stageLabel(order.stage)}</div></div>
+        <div class="sc-meta-row"><div class="sc-meta-k">Updated</div><div class="sc-meta-v">${order.updated}</div></div>
+      </div>`;
+  } else if (t === 'timeline') {
+    const prodFeed = order.productionFeed && ['production','bulk-qc','bulk-shipping','completed'].includes(order.stage) ? `
+      <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);">
+        <div style="font-family:'Geist Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-bottom:10px;">Production updates</div>
+        <div class="feed">
+          ${order.productionFeed.map(f => `
+            <div class="feed-item ${f.done?'':'pending'}">
+              <div class="feed-dot"></div>
+              <div>
+                <div class="feed-title">${f.title}</div>
+                ${f.when ? `<div class="feed-time">${f.when}</div>` : ''}
+                ${f.body ? `<div class="feed-body">${f.body}</div>` : ''}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>` : '';
+    body = `
+      <div class="sc-tl">
+        ${STAGES.map((s, i) => {
+          const status = i < idx ? 'done' : i === idx ? 'active' : '';
+          return `<div class="sc-tl-item ${status}">
+            <div class="sc-tl-dot"></div>
+            <div>
+              <div class="sc-tl-label">${s.label}</div>
+              <div class="sc-tl-date">${i < idx ? 'Completed' : i === idx ? order.updated : 'Pending'}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>${prodFeed}`;
+  } else if (t === 'support') {
+    // support tab — show non-internal notes as bubbles
+    const msgs = isAdmin ? order.notes : order.notes.filter(n => !n.internal);
+    body = `
+      <div class="sc-chat">
+        ${msgs.length === 0 ? `<div style="font-size:12px;color:var(--ink-3);text-align:center;padding:20px 0;">No messages yet.</div>` : ''}
+        ${msgs.map(n => {
+          const isClient = n.role === 'client';
+          return `<div>
+            <div class="sc-msg ${isClient ? 'client-msg' : 'team'}">${n.body}
+              ${n.internal ? `<div style="font-size:9px;opacity:0.6;margin-top:3px;font-family:'Geist Mono',monospace;">INTERNAL</div>` : ''}
+            </div>
+            <div class="sc-msg-meta" style="${isClient?'text-align:right':''}">
+              ${n.author} · ${n.when}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="sc-composer">
+        <input placeholder="${isAdmin ? 'Message to client…' : 'Message SourceLab…'}" />
+        <button>Send</button>
+      </div>
+      ${isAdmin ? `
+        <div style="padding:8px 0 0;display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ink-3);">
+          <div class="toggle" style="flex-shrink:0;"></div> Internal only
+        </div>` : ''}`;
+  }
+
+  return `
+    <div class="order-sidecar ${state.sidecarOpen ? '' : 'collapsed'}">
+      <div class="sidecar-head">
+        <div class="sidecar-tab-bar">
+          <button class="sidecar-tab-btn ${t==='client'?'active':''}"   data-action="set-sidecar-tab" data-tab="client">Client</button>
+          <button class="sidecar-tab-btn ${t==='timeline'?'active':''}" data-action="set-sidecar-tab" data-tab="timeline">Timeline</button>
+          <button class="sidecar-tab-btn ${t==='support'?'active':''}"  data-action="set-sidecar-tab" data-tab="support">Support</button>
+        </div>
+        <button class="sidecar-toggle" data-action="toggle-sidecar">${state.sidecarOpen ? '›' : '‹'}</button>
+      </div>
+      <div class="sidecar-body">${body}</div>
+    </div>`;
+}
+
+/* ── product brief tab ── */
+function renderProductBriefTab(order) {
+  const isAdmin = state.view === 'admin';
+  return `
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Product specifications</div>
+          <div class="card-title-sub">${order.refType} · captured at intake</div>
+        </div>
+        ${isAdmin ? `<button class="btn btn-secondary btn-sm">Edit brief</button>` : ''}
+      </div>
+      <div class="spec-list">
+        ${Object.entries(order.specs).map(([k,v]) => `
+          <div class="spec-row"><div class="spec-key">${k}</div><div class="spec-val">${v}</div></div>
+        `).join('')}
+      </div>
+      <div class="brief-figures">
+        <div class="brief-fig">
+          <div class="brief-fig-label">Order quantity</div>
+          <div class="brief-fig-val">${order.quantity.toLocaleString()} <small>units</small></div>
+        </div>
+        <div class="brief-fig">
+          <div class="brief-fig-label">Target unit price</div>
+          <div class="brief-fig-val">${fmtUSD(order.target)} <small>USD</small></div>
+        </div>
+        <div class="brief-fig">
+          <div class="brief-fig-label">Target launch</div>
+          <div class="brief-fig-val" style="font-size:13px;font-family:'Geist',sans-serif;font-weight:500;">${order.targetLaunch || 'Q3 2026'}</div>
+        </div>
+      </div>
+    </div>
+    ${order.techPack ? `
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-head">
+        <div class="card-title">Reference files</div>
+        <div class="card-title-sub">Tech packs and uploaded documents</div>
+      </div>
+      <div class="techpack-row">
+        <div class="techpack-icon">📄</div>
+        <div class="techpack-meta">
+          <div class="techpack-name">${order.techPack.name}</div>
+          <div class="techpack-detail">${order.techPack.size} · ${order.techPack.pages} pages · uploaded ${order.techPack.uploaded}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button class="btn btn-secondary btn-sm">View</button>
+          <button class="btn btn-secondary btn-sm">↓ Download</button>
+        </div>
+      </div>
+      ${isAdmin ? `
+      <div style="padding:14px 22px 18px;border-top:1px solid var(--border);">
+        <div style="font-size:12px;font-weight:500;color:var(--ink);margin-bottom:10px;">Upload additional files</div>
+        <div class="dropzone" style="padding:20px;">
+          <div class="dropzone-icon" style="font-size:18px;">+</div>
+          <div class="dropzone-title" style="font-size:13px;">Drop files here or click to browse</div>
+          <div class="dropzone-sub" style="font-size:11px;">PDF, PNG, DOCX, AI, SVG</div>
+        </div>
+      </div>` : `
+      <div style="padding:14px 22px 18px;border-top:1px solid var(--border);">
+        <button class="btn btn-secondary btn-sm">+ Upload additional files</button>
+      </div>`}
+    </div>` : `
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-head"><div class="card-title">Reference files</div></div>
+      <div class="empty-state" style="padding:28px;">No tech pack uploaded yet. ${isAdmin ? 'Request one from the client or upload directly.' : 'Upload your tech pack to help us source accurately.'}</div>
+      <div style="padding:0 22px 18px;">
+        <button class="btn btn-primary btn-sm">${isAdmin ? 'Request tech pack' : 'Upload tech pack'}</button>
+      </div>
+    </div>`}
+  `;
+}
+
+/* ── inquiry & quotes tab ── */
+function renderInquiryQuotesTab(order) {
+  const isAdmin = state.view === 'admin';
+
+  // Stage-specific quote content
+  let content = '';
+  if (order.stage === 'inquiry') {
+    if (isAdmin && state.orderSubState === 'quote-form') {
+      content = `
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Issue a quote</div>
+            <div class="card-title-sub">This will be sent to ${CLIENTS[order.clientId].name}</div>
+          </div>
+          <div class="quote-form-body">
+            <div class="form-row two">
+              <div class="form-group"><label class="form-label">Unit price (USD)</label><input class="form-input" id="qi-unit" placeholder="e.g. 18.50" /></div>
+              <div class="form-group"><label class="form-label">Lead time</label><input class="form-input" id="qi-lead" placeholder="e.g. 45 days" /></div>
+            </div>
+            <div class="form-row two">
+              <div class="form-group"><label class="form-label">MOQ</label><input class="form-input" id="qi-moq" placeholder="e.g. 300" /></div>
+              <div class="form-group"><label class="form-label">Validity</label><input class="form-input" id="qi-validity" placeholder="e.g. 14 days" /></div>
+            </div>
+            <div class="form-group"><label class="form-label">Supplier</label><input class="form-input" id="qi-supplier" placeholder="e.g. Evergreen Textiles" /></div>
+            <div class="form-group"><label class="form-label">Notes to client</label><textarea class="form-input" id="qi-notes" rows="2" placeholder="Any pricing notes, conditions, or clarifications…"></textarea></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;">
+              <button class="btn btn-ghost" data-action="toggle-quote-form">Cancel</button>
+              <button class="btn btn-primary">Send quote to client →</button>
+            </div>
+          </div>
+        </div>`;
+    } else if (isAdmin) {
+      content = `
+        <div class="action-panel">
+          <div class="action-panel-eyebrow">Awaiting quote</div>
+          <div class="action-panel-title">New inquiry — ready to quote</div>
+          <div class="action-panel-body">Review the Product Brief tab for full specs. Ask clarifying questions before sending a quote if needed.</div>
+          <div class="action-panel-buttons">
+            <button class="btn btn-primary" data-action="toggle-quote-form">Issue quote →</button>
+          </div>
+        </div>`;
+    } else {
+      content = `
+        <div class="action-panel">
+          <div class="action-panel-eyebrow">Submitted</div>
+          <div class="action-panel-title">Brief received — quote incoming</div>
+          <div class="action-panel-body">Your inquiry is with our sourcing team. We'll send a quote within 24–48 hours.</div>
+        </div>`;
+    }
+  } else if (order.stage === 'quoting' && order.quote) {
+    const q = order.quote;
+    const questions = order.questions || [];
+    content = `
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Quote ${order.id}-Q1</div>
+            <div class="card-title-sub">${q.supplier ? q.supplier + ' · via SourceLab' : 'Issued by SourceLab'} · valid for ${q.validity}</div>
+          </div>
+          ${isAdmin
+            ? `<span class="badge-status amber">Awaiting response</span>`
+            : `<span class="badge-status amber">Review needed</span>`}
+        </div>
+        <div class="quote-block">
+          <div class="quote-figure">
+            <div><div class="quote-fig-label">Unit price</div><div class="quote-fig-val">${fmtUSD(q.unit)} <small>USD</small></div></div>
+            <div><div class="quote-fig-label">Total</div><div class="quote-fig-val">${fmtUSD(q.total)}</div></div>
+            <div><div class="quote-fig-label">Lead time</div><div class="quote-fig-val">${q.leadTime.split(' ')[0]} <small>days</small></div></div>
+            <div><div class="quote-fig-label">MOQ</div><div class="quote-fig-val">${q.moq.toLocaleString()} <small>units</small></div></div>
+          </div>
+          <div style="font-size:13px;color:var(--ink-2);line-height:1.55;">${q.notes}</div>
+        </div>
+        ${isAdmin ? `
+          <div style="border-top:1px solid var(--border);padding:16px 22px;">
+            <div style="font-size:12px;font-weight:500;color:var(--ink);margin-bottom:12px;">Revise quote</div>
+            <div class="form-row two" style="margin-bottom:10px;">
+              <div class="form-group"><label class="form-label">Unit price (USD)</label><input class="form-input" value="${q.unit}" /></div>
+              <div class="form-group"><label class="form-label">Lead time</label><input class="form-input" value="${q.leadTime}" /></div>
+            </div>
+            <button class="btn btn-primary btn-sm">Update & re-send to client</button>
+          </div>` : `
+          <div style="border-top:1px solid var(--border);padding:16px 22px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-primary">✓ Accept quote</button>
+            <button class="btn btn-secondary">Negotiate</button>
+            <button class="btn btn-danger">Reject</button>
+          </div>`}
+        ${questions.length > 0 || isAdmin ? `
+        <div style="border-top:1px solid var(--border);padding:16px 22px 0;">
+          <div style="font-size:12px;font-weight:500;color:var(--ink);margin-bottom:10px;">Questions about this quote</div>
+          ${questions.length === 0
+            ? `<div style="font-size:12px;color:var(--ink-3);margin-bottom:12px;">No questions yet.</div>`
+            : `<div class="q-thread" style="margin-bottom:10px;">
+                ${questions.map(q => `
+                  <div class="q-item">
+                    <div class="q-meta"><span class="q-from ${q.from==='SourceLab'?'sl':''}">${q.from}</span><span class="q-time">${q.when}</span></div>
+                    <div class="q-body">${q.body}</div>
+                  </div>`).join('')}
+              </div>`}
+          ${!isAdmin ? `
+          <div class="q-composer" style="margin-bottom:16px;">
+            <textarea rows="2" placeholder="Ask a question about this quote…"></textarea>
+            <div style="display:flex;justify-content:flex-end;">
+              <button class="btn btn-primary btn-sm">Send question</button>
+            </div>
+          </div>` : ''}
+        </div>` : ''}
+      </div>`;
+  } else {
+    // other stages — quote is settled
+    content = `<div class="card"><div class="empty-state">${stageIndex(order.stage) < stageIndex('quoting') ? 'No quotes issued yet.' : 'Quote accepted — order is in progress.'}</div></div>`;
+  }
+
+  return content;
+}
+
+/* ── product development tab ── */
+function renderProductDevTab(order) {
+  const isAdmin = state.view === 'admin';
+  const devStages = ['sampling','sample-transit','sample-review'];
+  if (!devStages.includes(order.stage)) {
+    const isAhead = stageIndex(order.stage) < stageIndex('sampling');
+    return '<div class="card"><div class="empty-state">' + (isAhead ? "This order hasn't entered sampling yet." : 'Product development is complete for this order.') + '</div></div>';
+  }
+
+  // ── multi-iteration sampling ──
+  if (order.sampleIterations && order.sampleIterations.length > 0) {
+    const iters = order.sampleIterations;
+    let html = iters.map(function(iter) {
+      const isCurrentIter = iter.status === 'current';
+      const isDone = iter.status === 'completed';
+      const approvalKey = order.id + '-v' + iter.version;
+      const approvals = photoApprovals[approvalKey] || {};
+      const total = iter.photos ? iter.photos.length : 0;
+      const approvedCount = Object.values(approvals).filter(Boolean).length;
+      const allApproved = total > 0 && approvedCount === total;
+
+      let photoGrid = '';
+      if (iter.photos && iter.photos.length > 0) {
+        photoGrid = '<div class="photo-grid">' +
+          iter.photos.map(function(p) {
+            const approved = approvals[p.id];
+            const clickAttr = (isCurrentIter && !isAdmin)
+              ? ' data-action="toggle-photo" data-id="' + p.id + '" data-order="' + approvalKey + '"'
+              : '';
+            return '<div class="photo ' + (approved ? 'approved' : '') + '"' + clickAttr + '>' +
+              svgFabric(p.hue, p.sat, p.label) +
+              '<div class="photo-check">' + (approved ? '✓' : '') + '</div>' +
+              '<div class="photo-label">' + p.label + '</div>' +
+              '</div>';
+          }).join('') +
+        '</div>';
+      } else {
+        photoGrid = '<div class="empty-state" style="padding:20px;">Factory photos pending upload.</div>';
+      }
+
+      let changeNotesBanner = '';
+      if (iter.changeNotes) {
+        changeNotesBanner = '<div style="padding:12px 22px;border-top:1px solid var(--border);background:var(--amber-bg);border-radius:0 0 8px 8px;">' +
+          '<div style="font-size:10.5px;font-family:\'Geist Mono\',monospace;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);margin-bottom:4px;">Change request from client</div>' +
+          '<div style="font-size:13px;color:var(--ink-2);">' + iter.changeNotes + '</div>' +
+          '</div>';
+      }
+
+      let actionPanel = '';
+      if (isCurrentIter && !isAdmin && total > 0) {
+        if (allApproved) {
+          actionPanel = '<div class="action-panel" style="margin:0 16px 16px;">' +
+            '<div class="action-panel-eyebrow">Photos approved</div>' +
+            '<div class="action-panel-title">Arrange sample delivery</div>' +
+            '<div class="action-panel-body">All photos approved. Choose how you\'d like to receive the physical sample.</div>' +
+            '<div class="action-panel-buttons">' +
+              '<button class="btn btn-primary">Use my courier account</button>' +
+              '<button class="btn btn-secondary">SourceLab arranges</button>' +
+            '</div></div>';
+        } else {
+          actionPanel = '<div class="action-panel" style="margin:0 16px 16px;">' +
+            '<div class="action-panel-eyebrow">Photo review</div>' +
+            '<div class="action-panel-title">Approve all ' + total + ' photos to continue</div>' +
+            '<div class="action-panel-body">' + (total - approvedCount) + ' photo' + (total-approvedCount===1?'':'s') + ' still need your review. Tap each photo to approve it.</div>' +
+            '</div>';
+        }
+      }
+
+      const statusClass = isDone ? 'amber' : isCurrentIter ? 'blue' : '';
+      const statusLabel = isDone ? 'Changes requested' : isCurrentIter ? 'In review' : 'Pending';
+
+      return '<div class="card" style="margin-bottom:20px;' + (isDone ? 'opacity:0.8;' : '') + '">' +
+        '<div class="card-head">' +
+          '<div>' +
+            '<div class="card-title">Sample v' + iter.version + '</div>' +
+            '<div class="card-title-sub">' + (isDone ? 'Changes requested · see notes below' : isCurrentIter ? 'Current iteration · awaiting approval' : 'Pending') + '</div>' +
+          '</div>' +
+          '<span class="badge-status ' + statusClass + '">' + statusLabel + '</span>' +
+        '</div>' +
+        photoGrid +
+        actionPanel +
+        changeNotesBanner +
+      '</div>';
+    }).join('');
+
+    if (isAdmin) {
+      html += '<div class="action-panel">' +
+        '<div class="action-panel-eyebrow">Admin action</div>' +
+        '<div class="action-panel-title">Manage sampling</div>' +
+        '<div class="action-panel-body">Upload new factory sample photos or create a new iteration after client feedback.</div>' +
+        '<div class="action-panel-buttons">' +
+          '<button class="btn btn-secondary">+ Upload photos</button>' +
+          '<button class="btn btn-primary">Add new iteration</button>' +
+        '</div></div>';
+    }
+    return html;
+  }
+
+  // ── fallback: single sample photos ──
+  if (order.stage === 'sampling' && order.samplePhotos) {
+    const approvals = photoApprovals[order.id] || {};
+    const approvedCount = Object.values(approvals).filter(Boolean).length;
+    const total = order.samplePhotos.length;
+    const allApproved = approvedCount === total;
+    return '<div class="card" style="margin-bottom:20px;">' +
+      '<div class="card-head">' +
+        '<div><div class="card-title">Sample v1 — Factory photos</div>' +
+        '<div class="card-title-sub">' + approvedCount + ' of ' + total + ' approved</div></div>' +
+        (isAdmin ? '<button class="btn btn-secondary btn-sm">+ Upload photo</button>' : '') +
+      '</div>' +
+      '<div class="photo-grid">' +
+        order.samplePhotos.map(function(p) {
+          return '<div class="photo ' + (approvals[p.id]?'approved':'') + '" data-action="toggle-photo" data-id="' + p.id + '" data-order="' + order.id + '">' +
+            svgFabric(p.hue, p.sat, p.label) +
+            '<div class="photo-check">' + (approvals[p.id]?'✓':'') + '</div>' +
+            '<div class="photo-label">' + p.label + '</div></div>';
+        }).join('') +
+      '</div></div>' +
+      (!isAdmin ? (allApproved
+        ? '<div class="action-panel"><div class="action-panel-eyebrow">All approved</div><div class="action-panel-title">Arrange sample delivery</div><div class="action-panel-body">All photos approved. Choose how you\'d like to receive the physical sample.</div><div class="action-panel-buttons"><button class="btn btn-primary">Use my courier account</button><button class="btn btn-secondary">SourceLab arranges</button></div></div>'
+        : '<div class="action-panel"><div class="action-panel-eyebrow">Photo review</div><div class="action-panel-title">Approve all ' + total + ' photos to continue</div><div class="action-panel-body">' + (total-approvedCount) + ' photo' + (total-approvedCount===1?'':'s') + ' still need your review.</div></div>'
+      ) : '');
+  }
+
+  if (order.stage === 'sample-transit') {
+    return '<div class="card"><div class="card-head"><div class="card-title">Sample in transit</div></div>' +
+      '<div class="tracking-card">' +
+        (order.tracking
+          ? '<div class="tracking-row"><div class="k">Courier</div><div class="v">' + order.tracking.courier + '</div></div>' +
+            '<div class="tracking-row"><div class="k">Tracking</div><div class="v mono">' + order.tracking.number + '</div></div>' +
+            '<div class="tracking-row"><div class="k">Picked up</div><div class="v">' + order.tracking.pickup + '</div></div>' +
+            '<div class="tracking-row"><div class="k">ETA</div><div class="v">' + order.tracking.eta + '</div></div>' +
+            '<div class="tracking-row"><div class="k">Destination</div><div class="v">' + order.tracking.destination + '</div></div>'
+          : '<div class="tracking-row"><div class="k">Status</div><div class="v">Sample dispatched — tracking details coming shortly.</div></div>') +
+      '</div></div>' +
+      (!isAdmin ? '<div class="action-panel" style="margin-top:16px;"><div class="action-panel-eyebrow">Awaiting delivery</div><div class="action-panel-title">Sample on its way</div><div class="action-panel-body">Once it arrives, mark it as received to begin your review.</div><div class="action-panel-buttons"><button class="btn btn-primary">Mark as received</button></div></div>' : '');
+  }
+
+  if (order.stage === 'sample-review') {
+    return isAdmin
+      ? '<div class="action-panel"><div class="action-panel-eyebrow">Sample with client</div><div class="action-panel-title">Awaiting physical review</div><div class="action-panel-body">Client has the sample. They\'re evaluating handfeel and finish before deciding to approve, request changes, or reject.</div></div>'
+      : '<div class="action-panel"><div class="action-panel-eyebrow">Your decision</div><div class="action-panel-title">How does the sample feel?</div><div class="action-panel-body">Approving moves your order into bulk production. Requesting changes will start a new iteration.</div><div class="action-panel-buttons"><button class="btn btn-primary">✓ Approve for production</button><button class="btn btn-secondary">Request changes</button><button class="btn btn-danger">Reject</button></div></div>';
+  }
+  return '';
+}
+
+/* ── orders tab ── */
+function renderOrdersTab(order) {
+  const isAdmin = state.view === 'admin';
+  const orderStages = ['production','bulk-qc','bulk-shipping','completed'];
+  if (!orderStages.includes(order.stage)) {
+    return '<div class="card"><div class="empty-state">This order hasn\'t entered production yet.</div></div>';
+  }
+
+  const parts = [];
+
+  // ── 1. Production started — pending QC ──
+  if (order.stage === 'production') {
+    parts.push(
+      '<div class="card" style="margin-bottom:20px;">' +
+        '<div class="card-head">' +
+          '<div class="card-title">In production</div>' +
+          '<div class="card-title-sub">Manufacturing underway — QC update pending</div>' +
+        '</div>' +
+        '<div style="padding:20px 22px;background:var(--surface-2);border-radius:0 0 10px 10px;">' +
+          '<div style="font-family:\'Geist Mono\',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);margin-bottom:6px;">Status</div>' +
+          '<div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:6px;">QC / supplier update pending</div>' +
+          '<div style="font-size:13px;color:var(--ink-2);">Production has started. Quality control photos and a factory update will appear here once manufacturing reaches the inspection stage.</div>' +
+          (isAdmin ? '<div style="margin-top:14px;"><button class="btn btn-secondary btn-sm">+ Add production update</button></div>' : '') +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  // ── 2. QC photos ──
+  if (order.stage === 'bulk-qc' && order.qcPhotos) {
+    parts.push(
+      '<div class="card" style="margin-bottom:20px;">' +
+        '<div class="card-head">' +
+          '<div>' +
+            '<div class="card-title">Quality control photos</div>' +
+            '<div class="card-title-sub">Bulk order · ' + (isAdmin ? 'shared with client' : 'ready for your sign-off') + '</div>' +
+          '</div>' +
+          (isAdmin ? '<button class="btn btn-secondary btn-sm">+ Add photo</button>' : '') +
+        '</div>' +
+        '<div class="photo-grid">' +
+          order.qcPhotos.map(function(p) {
+            return '<div class="photo">' + svgFabric(p.hue, p.sat, p.label) + '<div class="photo-label">' + p.label + '</div></div>';
+          }).join('') +
+        '</div>' +
+        (!isAdmin
+          ? '<div style="border-top:1px solid var(--border);padding:16px 22px;">' +
+              '<div style="font-size:12px;color:var(--ink-2);margin-bottom:12px;">Review all photos carefully. Approving will move to the deposit payment step.</div>' +
+              '<div style="display:flex;gap:8px;">' +
+                '<button class="btn btn-primary" data-action="approve-qc" data-order="' + order.id + '">✓ Approve QC</button>' +
+                '<button class="btn btn-secondary">Flag an issue</button>' +
+              '</div>' +
+            '</div>'
+          : '<div style="border-top:1px solid var(--border);padding:14px 22px;font-size:12px;color:var(--ink-3);">Awaiting client approval.</div>') +
+      '</div>'
+    );
+  }
+
+  // ── 3. 30% deposit (after QC approved) ──
+  if (order._qcApproved || order.depositStatus) {
+    const depositAmount = order.depositAmount || (order.quote ? order.quote.total * 0.3 : order.quantity * order.target * 0.3);
+    const depositPaid = order.depositStatus === 'paid';
+    parts.push(
+      '<div class="card" style="margin-bottom:20px;">' +
+        '<div class="card-head">' +
+          '<div>' +
+            '<div class="card-title">Factory deposit — 30%</div>' +
+            '<div class="card-title-sub">' + (depositPaid ? 'Paid · factory notified to release order' : 'Required to release order for shipment') + '</div>' +
+          '</div>' +
+          '<span class="badge-status ' + (depositPaid ? 'green' : 'amber') + '">' + (depositPaid ? 'Paid' : 'Pending') + '</span>' +
+        '</div>' +
+        '<div class="tracking-card">' +
+          '<div class="tracking-row"><div class="k">Amount due</div><div class="v" style="font-weight:600;">' + fmtUSD(depositAmount) + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Purpose</div><div class="v">30% deposit to confirm bulk production order</div></div>' +
+          (depositPaid ? '<div class="tracking-row"><div class="k">Status</div><div class="v" style="color:var(--green);">✓ Paid — factory releasing for shipment</div></div>' : '') +
+        '</div>' +
+        (!isAdmin && !depositPaid
+          ? '<div style="border-top:1px solid var(--border);padding:16px 22px;">' +
+              '<button class="btn btn-primary" data-action="pay-deposit" data-order="' + order.id + '">Pay ' + fmtUSD(depositAmount) + ' deposit →</button>' +
+            '</div>'
+          : '') +
+      '</div>'
+    );
+  }
+
+  // ── 4. Pickup date + shipping label ──
+  if (order.depositStatus === 'paid' || order.pickupDate || order.stage === 'bulk-shipping') {
+    const labelUploaded = order.clientShippingLabel;
+    const s = order.shipping;
+    parts.push(
+      '<div class="card" style="margin-bottom:20px;">' +
+        '<div class="card-head">' +
+          '<div>' +
+            '<div class="card-title">Pickup & shipping</div>' +
+            '<div class="card-title-sub">' + (labelUploaded ? 'Shipping label uploaded · ready for pickup' : 'Upload your label so the factory can schedule pickup') + '</div>' +
+          '</div>' +
+          '<span class="badge-status ' + (labelUploaded ? 'green' : 'blue') + '">' + (labelUploaded ? 'Ready to ship' : 'Action needed') + '</span>' +
+        '</div>' +
+        '<div class="tracking-card">' +
+          (order.pickupDate ? '<div class="tracking-row"><div class="k">Pickup date</div><div class="v" style="font-weight:500;">' + order.pickupDate + '</div></div>' : '') +
+          (s ? '<div class="tracking-row"><div class="k">Carrier</div><div class="v">' + s.carrier + '</div></div>' +
+               '<div class="tracking-row"><div class="k">Origin</div><div class="v">' + s.origin + '</div></div>' +
+               '<div class="tracking-row"><div class="k">Destination</div><div class="v">' + s.destination + '</div></div>' +
+               '<div class="tracking-row"><div class="k">Method</div><div class="v">' + s.method + '</div></div>' : '') +
+          (labelUploaded ? '<div class="tracking-row"><div class="k">Label</div><div class="v" style="color:var(--green);">✓ ' + labelUploaded.filename + ' · uploaded ' + labelUploaded.uploaded + '</div></div>' : '') +
+        '</div>' +
+        (!isAdmin && !labelUploaded
+          ? '<div style="border-top:1px solid var(--border);padding:16px 22px;">' +
+              '<div style="font-size:12px;color:var(--ink-2);margin-bottom:10px;">Upload your shipping label so the factory can arrange pickup.</div>' +
+              '<button class="btn btn-primary" data-action="upload-label" data-order="' + order.id + '">+ Upload shipping label</button>' +
+            '</div>'
+          : '') +
+      '</div>'
+    );
+  }
+
+  // ── 5. In transit ──
+  if (order.stage === 'bulk-shipping' && order.shipping && order.shipping.shipped) {
+    const s = order.shipping;
+    parts.push(
+      '<div class="card" style="margin-bottom:20px;">' +
+        '<div class="card-head">' +
+          '<div class="card-title">Shipment in transit</div>' +
+          '<div class="card-title-sub">Picked up ' + s.shipped + ' · ETA ' + s.eta + '</div>' +
+        '</div>' +
+        '<div class="tracking-card">' +
+          '<div class="tracking-row"><div class="k">Carrier</div><div class="v">' + s.carrier + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Tracking</div><div class="v mono">' + s.tracking + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Shipped</div><div class="v">' + s.shipped + '</div></div>' +
+          '<div class="tracking-row"><div class="k">ETA</div><div class="v">' + s.eta + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Destination</div><div class="v">' + s.destination + '</div></div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  // ── 6. Completed ──
+  if (order.stage === 'completed' && order.completedSummary) {
+    const cs = order.completedSummary;
+    parts.push(
+      '<div class="card" style="margin-bottom:20px;">' +
+        '<div class="card-head"><div class="card-title">Order delivered</div></div>' +
+        '<div class="tracking-card">' +
+          '<div class="tracking-row"><div class="k">Final unit</div><div class="v">' + fmtUSD(cs.finalUnit) + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Final total</div><div class="v">' + fmtUSD(cs.finalTotal) + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Delivered</div><div class="v">' + cs.delivered + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Lead time</div><div class="v">' + cs.leadTotal + '</div></div>' +
+        '</div>' +
+      '</div>' +
+      (!isAdmin
+        ? '<div class="action-panel"><div class="action-panel-eyebrow">All done</div><div class="action-panel-title">What\'s next?</div><div class="action-panel-body">Delivered on schedule. Restock the same product or start something new.</div><div class="action-panel-buttons"><button class="btn btn-primary">Restock this order</button><button class="btn btn-secondary" data-action="goto-intake">Start a new product</button></div></div>'
+        : '')
+    );
+  }
+
+  // ── 7. Delivery notes ──
+  parts.push(
+    '<div class="card">' +
+      '<div class="card-head">' +
+        '<div class="card-title">Delivery notes</div>' +
+        '<div class="card-title-sub">Report issues or add comments about this delivery</div>' +
+      '</div>' +
+      (order.deliveryNotes
+        ? '<div style="padding:14px 22px;font-size:13px;color:var(--ink-2);">' + order.deliveryNotes + '</div>'
+        : '<div class="empty-state" style="padding:20px;">No notes yet.</div>') +
+      (!isAdmin
+        ? '<div style="border-top:1px solid var(--border);padding:14px 22px;">' +
+            '<textarea class="form-input" rows="2" placeholder="Describe any delivery issues or add a comment…" style="width:100%;margin-bottom:8px;"></textarea>' +
+            '<button class="btn btn-secondary btn-sm">Add note</button>' +
+          '</div>'
+        : '') +
+    '</div>'
+  );
+
+  return parts.join('');
+}
+
+/* ──────────────────────────────────────────────────────────
+   AI INTAKE FLOW
+   ────────────────────────────────────────────────────────── */
+function renderIntake() {
+  return `
+    <button class="detail-back" data-action="back-to-dashboard">← Back to your orders</button>
+    <div class="intake-shell">
+      <div class="page-eyebrow">New inquiry · Step ${state.intakeStep} of 4</div>
+      <h1 class="page-title">Tell us what you&apos;re <em>making</em>.</h1>
+      <p class="page-sub">Drop your tech pack, sketch, or reference photo and our AI will draft a factory-ready brief in under a minute. We&apos;ll only ask you for what we couldn&apos;t figure out on our own.</p>
+
+      <div class="intake-progress">
+        <div class="intake-step ${state.intakeStep>1?'done':state.intakeStep===1?'active':''}"></div>
+        <div class="intake-step ${state.intakeStep>2?'done':state.intakeStep===2?'active':''}"></div>
+        <div class="intake-step ${state.intakeStep>3?'done':state.intakeStep===3?'active':''}"></div>
+        <div class="intake-step ${state.intakeStep===4?'active':''}"></div>
+      </div>
+
+      ${renderIntakeStep()}
+    </div>
+  `;
+}
+
+function renderIntakeStep() {
+  if (state.intakeStep === 1) {
+    return `
+      <div class="dropzone">
+        <div class="dropzone-icon">⌃</div>
+        <div class="dropzone-title">Drop your files anywhere</div>
+        <div class="dropzone-sub">Tech packs, sketches, reference photos, Excel BOMs, PDFs — drop them all in.</div>
+        <div class="file-types">
+          <div class="file-type-pill">PDF</div>
+          <div class="file-type-pill">XLSX</div>
+          <div class="file-type-pill">DOCX</div>
+          <div class="file-type-pill">PNG / JPG</div>
+          <div class="file-type-pill">AI / SVG / FIG</div>
+          <div class="file-type-pill">CSV</div>
+        </div>
+      </div>
+      <div style="margin-top: 28px; display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn btn-ghost" data-action="back-to-dashboard">Cancel</button>
+        <button class="btn btn-primary" data-action="intake-next">Simulate upload →</button>
+      </div>
+    `;
+  }
+
+  if (state.intakeStep === 2) {
+    return `
+      <div class="intake-files">
+        ${[
+          { ext:'PDF', name:'AO_Hoodie_TechPack_v3.pdf', size:'2.4 MB' },
+          { ext:'XLSX', name:'Hoodie_BOM_Grading.xlsx', size:'186 KB' },
+          { ext:'JPG', name:'reference_front.jpg', size:'1.2 MB' },
+        ].map(f => `
+          <div class="intake-file">
+            <div class="intake-file-icon">${f.ext}</div>
+            <div class="intake-file-meta">
+              <div class="intake-file-name">${f.name}</div>
+              <div class="intake-file-size">${f.size}</div>
+            </div>
+            <div class="intake-file-status">Read</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="font-family:'Geist Mono',monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 26px 0 12px;">Extracted brief · 12 of 15 fields filled</div>
+
+      <div class="fields-grid">
+        ${[
+          ['Product name','Heavyweight Organic Hoodie','high'],
+          ['Category','Apparel','high'],
+          ['Description','Drop-shoulder hoodie, brushed inside, oversized fit','high'],
+          ['Fabric / material','450 GSM 100% organic cotton fleece','high'],
+          ['GSM / weight','450 GSM','high'],
+          ['Colors','Bone, Forest Green, Charcoal','high'],
+          ['Size range','XS – XXL','high'],
+          ['Target quantity','500 units per colorway','high'],
+          ['Target unit price','—','low'],
+          ['Construction','Drop shoulder, kangaroo pocket, ribbed cuffs','high'],
+          ['Artworks / prints','Embroidered chest logo (4 × 3 cm)','high'],
+          ['Tech pack type','Full tech pack','high'],
+          ['Season / collection','—','amber'],
+          ['Delivery timeline','—','amber'],
+          ['Special requirements','GOTS certified cotton','high'],
+        ].map(([k,v,c]) => `
+          <div class="field-cell ${c}">
+            <div class="field-key">${k} <span class="field-conf ${c}">${c}</span></div>
+            <div class="field-val ${v==='—'?'empty':''}">${v==='—'?'Need to ask':v}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="margin-top: 28px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 12px; color: var(--ink-3);">Confidence · <b style="color:var(--green)">12 high</b> · <b style="color:var(--amber)">2 missing</b> · <b style="color:var(--red)">1 unknown</b></div>
+        <button class="btn btn-primary" data-action="intake-next">Fill the gaps →</button>
+      </div>
+    `;
+  }
+
+  if (state.intakeStep === 3) {
+    return `
+      <div class="card" style="padding: 22px 24px;">
+        <div class="chat">
+          <div class="chat-msg ai">Got it — I&apos;ve read your tech pack and BOM. Looks like a clean, well-spec&apos;d hoodie. I&apos;ve filled in 12 of the 15 fields. Just a few quick questions before we send this to the team.</div>
+          <div class="chat-msg ai">First — <b>what&apos;s your target unit price?</b> Knowing this helps us go to the right tier of factory.</div>
+          <div class="chat-msg user">Around $18 per unit landed</div>
+          <div class="chat-msg ai">Perfect, $18 is realistic for 450 GSM organic cotton at 500 units. 👍<br><br>Next — <b>when do you need delivery?</b> A few common windows:</div>
+          <div class="quick-replies">
+            <button class="qr">June 2026</button>
+            <button class="qr">August 2026</button>
+            <button class="qr">September 2026</button>
+            <button class="qr">No fixed date</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 16px;">
+        <div class="chat-input">
+          <input placeholder="Type your answer or tap a quick reply…" />
+          <button>Send</button>
+        </div>
+      </div>
+      <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+        <button class="btn btn-primary" data-action="intake-next">Skip ahead to review →</button>
+      </div>
+    `;
+  }
+
+  // step 4 — review and submit
+  return `
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Review your brief</div>
+          <div class="card-title-sub">Edit any field, then submit to SourceLab</div>
+        </div>
+        <span class="badge-status green">Ready to submit</span>
+      </div>
+      <div class="spec-list">
+        ${[
+          ['Product','Heavyweight Organic Hoodie'],
+          ['Category','Apparel'],
+          ['Fabric','450 GSM 100% organic cotton fleece, brushed inside'],
+          ['Colors','Bone, Forest Green, Charcoal'],
+          ['Sizes','XS – XXL'],
+          ['Quantity','500 units per colorway (1,500 total)'],
+          ['Target price','$18 per unit landed'],
+          ['Construction','Drop shoulder, kangaroo pocket, ribbed cuffs and hem'],
+          ['Artwork','Embroidered chest logo (4 × 3 cm)'],
+          ['Timeline','September 2026 delivery'],
+          ['Certifications','GOTS organic cotton required'],
+        ].map(([k,v]) => `
+          <div class="spec-row">
+            <div class="spec-key">${k}</div>
+            <div class="spec-val">${v}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="font-size: 12px; color: var(--ink-3);">By submitting you&apos;ll receive a quote within 24 hours</div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary">Edit</button>
+        <button class="btn btn-primary" data-action="back-to-dashboard">Submit inquiry →</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ──────────────────────────────────────────────────────────
+   SUPPLIERS PAGE
+   ────────────────────────────────────────────────────────── */
+function svgFactory(hue, sat, label) {
+  const bg   = `hsl(${hue},${sat}%,${78 - sat/3}%)`;
+  const wall = `hsl(${hue},${sat}%,${62 - sat/3}%)`;
+  const win  = `hsl(${hue},${Math.max(sat-4,0)}%,${90}%)`;
+  return `
+    <svg viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block;">
+      <rect width="240" height="180" fill="${bg}"/>
+      <rect x="0"   y="80"  width="240" height="100" fill="${wall}" opacity="0.55"/>
+      <rect x="20"  y="60"  width="80"  height="120" fill="${wall}" opacity="0.7" rx="1"/>
+      <rect x="120" y="72"  width="100" height="108" fill="${wall}" opacity="0.65" rx="1"/>
+      <rect x="28"  y="70"  width="18"  height="14"  fill="${win}"  opacity="0.85" rx="1"/>
+      <rect x="52"  y="70"  width="18"  height="14"  fill="${win}"  opacity="0.85" rx="1"/>
+      <rect x="28"  y="92"  width="18"  height="14"  fill="${win}"  opacity="0.85" rx="1"/>
+      <rect x="52"  y="92"  width="18"  height="14"  fill="${win}"  opacity="0.85" rx="1"/>
+      <rect x="130" y="82"  width="18"  height="14"  fill="${win}"  opacity="0.85" rx="1"/>
+      <rect x="156" y="82"  width="18"  height="14"  fill="${win}"  opacity="0.85" rx="1"/>
+      <rect x="182" y="82"  width="18"  height="14"  fill="${win}"  opacity="0.85" rx="1"/>
+      <rect x="130" y="104" width="18"  height="14"  fill="${win}"  opacity="0.85" rx="1"/>
+      <rect x="156" y="104" width="18"  height="14"  fill="${win}"  opacity="0.85" rx="1"/>
+      <rect x="44"  y="138" width="24"  height="42"  fill="${win}"  opacity="0.5"  rx="1"/>
+      <rect x="148" y="138" width="20"  height="42"  fill="${win}"  opacity="0.5"  rx="1"/>
+      <text x="10" y="170" font-family="Geist Mono,monospace" font-size="8" fill="${wall}" opacity="0.6">${(label||'').toUpperCase()}</text>
+    </svg>`;
+}
+
+function renderSupplierDrawer(supplier) {
+  const s = supplier;
+  const isEdit = state.supplierEditMode;
+
+  const metaRows = [
+    ['Country',      isEdit ? `<input class="drawer-edit-input" id="se-country"  value="${s.country}" />` : s.country],
+    ['City',         isEdit ? `<input class="drawer-edit-input" id="se-city"     value="${s.city}" />`    : s.city],
+    ['Contact',      isEdit ? `<input class="drawer-edit-input" id="se-contact"  value="${s.contact}" />` : s.contact],
+    ['Phone / WA',   isEdit ? `<input class="drawer-edit-input" id="se-phone"    value="${s.phone}" />`   : (s.phone || '—')],
+    ['WeChat',       isEdit ? `<input class="drawer-edit-input" id="se-wechat"   value="${s.wechat||''}" />` : (s.wechat || '—')],
+    ['Email',        isEdit ? `<input class="drawer-edit-input" id="se-email"    value="${s.email}" />`   : s.email],
+    ['Founded',      isEdit ? `<input class="drawer-edit-input" id="se-founded"  value="${s.founded}" />` : s.founded],
+    ['Employees',    isEdit ? `<input class="drawer-edit-input" id="se-employees" value="${s.employees}" />` : s.employees],
+    ['Factory size', isEdit ? `<input class="drawer-edit-input" id="se-size"     value="${s.factorySize}" />` : s.factorySize],
+    ['MOQ',          isEdit ? `<input class="drawer-edit-input" id="se-moq"      value="${s.moq}" />`     : `${s.moq.toLocaleString()} units`],
+    ['Lead time',    isEdit ? `<input class="drawer-edit-input" id="se-lead"     value="${s.leadTime}" />` : s.leadTime],
+  ];
+
+  return `
+    <div class="supplier-drawer">
+      <div class="drawer-head">
+        <div>
+          <div class="drawer-title">${isEdit ? `<input class="drawer-edit-input" id="se-name" value="${s.name}" style="font-size:17px;font-weight:500;" />` : s.name}</div>
+          <div class="drawer-subtitle">${s.city}, ${s.country} · ${s.types.join(' · ')}</div>
+        </div>
+        <div class="drawer-head-actions">
+          ${isEdit
+            ? `<button class="btn btn-primary btn-sm" data-action="save-supplier" data-id="${s.id}">Save</button>
+               <button class="btn btn-ghost btn-sm"   data-action="cancel-supplier-edit">Cancel</button>`
+            : `<button class="btn btn-secondary btn-sm" data-action="edit-supplier" data-id="${s.id}">Edit</button>`
+          }
+          <button class="drawer-close" data-action="close-drawer">✕</button>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-label">About</div>
+        ${isEdit
+          ? `<textarea class="drawer-edit-input" id="se-about" rows="3" style="resize:vertical;">${s.about}</textarea>`
+          : `<p style="font-size:13px;color:var(--ink-2);line-height:1.6;">${s.about}</p>`
+        }
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-label">Details</div>
+        <div class="drawer-meta-grid">
+          ${metaRows.map(([k, v]) => `
+            <div class="drawer-meta-row">
+              <div class="drawer-meta-key">${k}</div>
+              <div class="drawer-meta-val">${v}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-label">Factory photos</div>
+        <div class="drawer-photos">
+          ${s.photos.map(p => `
+            <div class="drawer-photo">
+              ${svgFactory(p.hue, p.sat, p.label)}
+              <div class="drawer-photo-label">${p.label}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-label">Products</div>
+        <div class="drawer-products">
+          ${s.products.map(p => `<span class="product-tag">${p}</span>`).join('')}
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-label">Catalogs</div>
+        ${s.catalogs.map(c => `
+          <div class="catalog-item">
+            <div>
+              <div class="catalog-name">${c.name}</div>
+              <div class="catalog-meta">${c.size} · uploaded ${c.date}</div>
+            </div>
+            <button class="catalog-download">↓ Download</button>
+          </div>
+        `).join('')}
+        ${isEdit ? `<button class="btn btn-secondary btn-sm" style="margin-top:8px;">+ Upload catalog</button>` : ''}
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-label">Certifications</div>
+        <div class="cert-list">
+          ${s.certifications.map(c => `<div class="cert-item">${c}</div>`).join('')}
+        </div>
+        ${isEdit ? `<button class="btn btn-secondary btn-sm" style="margin-top:10px;">+ Add certification</button>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderSuppliersPage() {
+  const selected = SUPPLIERS.find(s => s.id === state.selectedSupplierId);
+
+  const addModal = state.modal === 'add-supplier' ? `
+    <div class="modal-overlay" data-action="close-modal">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-head">
+          <div>
+            <div class="modal-title">Add a new supplier</div>
+            <div class="modal-sub">They'll appear in the suppliers table immediately.</div>
+          </div>
+          <button class="modal-close" data-action="close-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row two">
+            <div class="form-group">
+              <label class="form-label">Supplier name *</label>
+              <input class="form-input" id="sf-name" placeholder="e.g. Evergreen Textiles Co." />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact name *</label>
+              <input class="form-input" id="sf-contact" placeholder="e.g. Wei Zhang" />
+            </div>
+          </div>
+          <div class="form-row two">
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input class="form-input" id="sf-city" placeholder="e.g. Guangzhou" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Country *</label>
+              <input class="form-input" id="sf-country" placeholder="e.g. China" />
+            </div>
+          </div>
+          <div class="form-row two">
+            <div class="form-group">
+              <label class="form-label">Phone / WhatsApp / WeChat</label>
+              <input class="form-input" id="sf-phone" placeholder="+86 139 0000 0000" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input class="form-input" id="sf-email" type="email" placeholder="contact@supplier.com" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Product types (comma separated)</label>
+            <input class="form-input" id="sf-types" placeholder="e.g. Apparel, Accessories" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" data-action="close-modal">Cancel</button>
+          <button class="btn btn-primary" data-action="submit-supplier">Add supplier →</button>
+        </div>
+      </div>
+    </div>
+  ` : '';
+
+  return `
+    ${addModal}
+    ${selected ? `<div class="drawer-backdrop" data-action="close-drawer"></div>` : ''}
+    ${selected ? renderSupplierDrawer(selected) : ''}
+
+    <div class="page-eyebrow">Workspace · Suppliers</div>
+    <h1 class="page-title"><em>Suppliers</em></h1>
+    <p class="page-sub">All factories and manufacturers in your network. Click any row to view the full profile.</p>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">All suppliers</div>
+          <div class="card-title-sub">${SUPPLIERS.length} in network · sorted by active projects</div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-primary" data-action="open-modal" data-modal="add-supplier">+ Add supplier</button>
+        </div>
+      </div>
+      <table class="clients-table">
+        <thead>
+          <tr>
+            <th>Supplier</th>
+            <th>Contact</th>
+            <th>Phone / WA / WeChat</th>
+            <th>Email</th>
+            <th>Product types</th>
+            <th style="width:110px;text-align:center">Active projects</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${[...SUPPLIERS].sort((a,b) => b.activeProjects - a.activeProjects).map(s => `
+            <tr class="row ${state.selectedSupplierId===s.id?'':''}
+            " data-action="open-supplier" data-id="${s.id}"
+              style="${state.selectedSupplierId===s.id ? 'background:var(--surface-2);' : ''}">
+              <td>
+                <div class="client-name">${s.name}</div>
+                <div class="client-location">${s.city}, ${s.country}</div>
+              </td>
+              <td>
+                <div class="client-contact-name">${s.contact}</div>
+              </td>
+              <td>
+                <div class="client-contact-detail">${s.phone || '—'}${s.wechat ? ` · ${s.wechat}` : ''}</div>
+              </td>
+              <td>
+                <div class="client-contact-detail">${s.email}</div>
+              </td>
+              <td>
+                <div class="supplier-types">
+                  ${s.types.map(t => `<span class="type-pill">${t}</span>`).join('')}
+                </div>
+              </td>
+              <td class="num-cell" style="text-align:center">
+                ${s.activeProjects > 0
+                  ? `<span class="badge-status blue">${s.activeProjects}</span>`
+                  : `<span style="color:var(--ink-4);font-family:'Geist Mono',monospace;font-size:12px;">—</span>`}
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+/* ──────────────────────────────────────────────────────────
+   CLIENTS PAGE
+   ────────────────────────────────────────────────────────── */
+function clientRevenue(clientId) {
+  return ORDERS
+    .filter(o => o.clientId === clientId)
+    .reduce((sum, o) => {
+      if (o.completedSummary) return sum + o.completedSummary.finalTotal;
+      if (o.quote)            return sum + o.quote.total;
+      return sum + (o.quantity * o.target);
+    }, 0);
+}
+
+function renderClientsPage() {
+  const rows = Object.entries(CLIENTS).map(([id, c]) => {
+    const projects = ORDERS.filter(o => o.clientId === id).length;
+    const revenue  = clientRevenue(id);
+    return { id, ...c, projects, revenue };
+  });
+
+  const modal = state.modal === 'add-client' ? `
+    <div class="modal-overlay" data-action="close-modal">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-head">
+          <div>
+            <div class="modal-title">Add a new client</div>
+            <div class="modal-sub">They'll appear in the clients table immediately.</div>
+          </div>
+          <button class="modal-close" data-action="close-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row two">
+            <div class="form-group">
+              <label class="form-label">Client / brand name *</label>
+              <input class="form-input" id="f-name" placeholder="e.g. Atlas & Oak" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Point of contact *</label>
+              <input class="form-input" id="f-contact" placeholder="e.g. Maya Chen" />
+            </div>
+          </div>
+          <div class="form-row two">
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input class="form-input" id="f-city" placeholder="e.g. London" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Country</label>
+              <input class="form-input" id="f-country" placeholder="e.g. United Kingdom" />
+            </div>
+          </div>
+          <div class="modal-divider"></div>
+          <div class="form-row two">
+            <div class="form-group">
+              <label class="form-label">Phone / WhatsApp</label>
+              <input class="form-input" id="f-phone" placeholder="+44 7700 900000" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email *</label>
+              <input class="form-input" id="f-email" type="email" placeholder="contact@brand.com" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" data-action="close-modal">Cancel</button>
+          <button class="btn btn-primary" data-action="submit-client">Add client →</button>
+        </div>
+      </div>
+    </div>
+  ` : '';
+
+  return `
+    ${modal}
+    <div class="page-eyebrow">Workspace · Clients</div>
+    <h1 class="page-title"><em>Clients</em></h1>
+    <p class="page-sub">All brand accounts managed through SourceLab. Click any row to open the full client profile.</p>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">All clients</div>
+          <div class="card-title-sub">${rows.length} accounts · sorted by revenue</div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-primary" data-action="open-modal" data-modal="add-client">+ Add client</button>
+        </div>
+      </div>
+      <table class="clients-table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Point of contact</th>
+            <th>Phone / WhatsApp</th>
+            <th>Email</th>
+            <th style="width:90px;text-align:center">Projects</th>
+            <th style="width:100px;text-align:center">Suppliers</th>
+            <th style="width:130px;text-align:right">Total revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.sort((a,b) => b.revenue - a.revenue).map(c => `
+            <tr class="row">
+              <td>
+                <div class="client-name">${c.name}</div>
+                <div class="client-location">${c.city ? c.city + ', ' : ''}${c.country}</div>
+              </td>
+              <td>
+                <div class="client-contact-name">${c.contact}</div>
+              </td>
+              <td>
+                <div class="client-contact-detail">${c.phone || '—'}</div>
+              </td>
+              <td>
+                <div class="client-contact-detail">${c.email || '—'}</div>
+              </td>
+              <td class="num-cell" style="text-align:center">${c.projects}</td>
+              <td class="num-cell" style="text-align:center">${c.suppliersEngaged ?? '—'}</td>
+              <td class="revenue-cell" style="text-align:right">${fmtUSD(c.revenue)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+/* ──────────────────────────────────────────────────────────
+   ROOT RENDER
+   ────────────────────────────────────────────────────────── */
+function render() {
+  let main = '';
+  if (state.page === 'order')          main = renderOrderDetail();
+  else if (state.page === 'intake')    main = renderIntake();
+  else if (state.page === 'clients')   main = renderClientsPage();
+  else if (state.page === 'suppliers') main = renderSuppliersPage();
+  else if (state.view === 'admin')     main = renderAdminDashboard();
+  else                                 main = renderClientDashboard();
+
+  document.getElementById('app').innerHTML = `
+    ${renderHeader()}
+    <div class="shell">
+      ${renderSidebar()}
+      <div class="main">
+        <div class="main-inner">${main}</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ──────────────────────────────────────────────────────────
+   EVENT DELEGATION
+   ────────────────────────────────────────────────────────── */
+document.addEventListener('click', (e) => {
+  const target = e.target.closest('[data-action]');
+  if (!target) {
+    // toggle composer toggle (no data-action)
+    const tog = e.target.closest('.toggle');
+    if (tog) { tog.classList.toggle('on'); }
+    return;
+  }
+  const action = target.dataset.action;
+
+  if (action === 'switch-view') {
+    state.view = target.dataset.view;
+    state.page = 'dashboard';
+    state.filter = 'all';
+    state.selectedOrderId = null;
+    render();
+  }
+  else if (action === 'set-filter') {
+    state.filter = target.dataset.filter;
+    state.page = 'dashboard';
+    state.selectedOrderId = null;
+    render();
+  }
+  else if (action === 'open-order') {
+    const o = ORDERS.find(x => x.id === target.dataset.id);
+    state.selectedOrderId = target.dataset.id;
+    state.page = 'order';
+    state.orderTab = o ? defaultTabForStage(o.stage) : 'inquiry-quotes';
+    state.orderSubState = null;
+    state.sidecarOpen = true;
+    state.sidecarTab = 'client';
+    render();
+    document.querySelector('.main').scrollTop = 0;
+  }
+  else if (action === 'back-to-dashboard') {
+    state.page = 'dashboard';
+    state.selectedOrderId = null;
+    state.intakeStep = 1;
+    render();
+  }
+  else if (action === 'set-tab') {
+    state.orderTab = target.dataset.tab;
+    render();
+  }
+  else if (action === 'goto-intake') {
+    state.page = 'intake';
+    state.intakeStep = 1;
+    render();
+  }
+  else if (action === 'intake-next') {
+    state.intakeStep = Math.min(4, state.intakeStep + 1);
+    render();
+  }
+  else if (action === 'toggle-photo') {
+    const id = target.dataset.id;
+    const orderId = target.dataset.order;
+    if (!photoApprovals[orderId]) photoApprovals[orderId] = {};
+    photoApprovals[orderId][id] = !photoApprovals[orderId][id];
+    render();
+  }
+  else if (action === 'toggle-sidebar') {
+    state.sidebarOpen = !state.sidebarOpen;
+    render();
+  }
+  else if (action === 'toggle-sidecar') {
+    state.sidecarOpen = !state.sidecarOpen;
+    render();
+  }
+  else if (action === 'set-sidecar-tab') {
+    state.sidecarTab = target.dataset.tab;
+    render();
+  }
+  else if (action === 'toggle-quote-form') {
+    state.orderSubState = state.orderSubState === 'quote-form' ? null : 'quote-form';
+    render();
+  }
+  else if (action === 'approve-qc') {
+    const o = ORDERS.find(x => x.id === target.dataset.order);
+    if (o) { o._qcApproved = true; o.depositStatus = 'pending'; }
+    render();
+  }
+  else if (action === 'pay-deposit') {
+    const o = ORDERS.find(x => x.id === target.dataset.order);
+    if (o) { o.depositStatus = 'paid'; o.pickupDate = 'Apr 28, 2026'; }
+    render();
+  }
+  else if (action === 'upload-label') {
+    const o = ORDERS.find(x => x.id === target.dataset.order);
+    if (o) o.clientShippingLabel = { filename: 'ShippingLabel_' + o.id + '.pdf', uploaded: 'just now' };
+    render();
+  }
+  else if (action === 'toggle-question-form') {
+    // questions composer is always visible; just scroll to it
+    render();
+  }
+  else if (action === 'goto-clients') {
+    state.page = 'clients';
+    state.modal = null;
+    render();
+  }
+  else if (action === 'goto-suppliers') {
+    state.page = 'suppliers';
+    state.modal = null;
+    state.selectedSupplierId = null;
+    state.supplierEditMode = false;
+    render();
+  }
+  else if (action === 'open-supplier') {
+    state.selectedSupplierId = target.dataset.id;
+    state.supplierEditMode = false;
+    render();
+  }
+  else if (action === 'close-drawer') {
+    state.selectedSupplierId = null;
+    state.supplierEditMode = false;
+    render();
+  }
+  else if (action === 'edit-supplier') {
+    state.supplierEditMode = true;
+    render();
+  }
+  else if (action === 'cancel-supplier-edit') {
+    state.supplierEditMode = false;
+    render();
+  }
+  else if (action === 'save-supplier') {
+    const id = target.dataset.id;
+    const s = SUPPLIERS.find(x => x.id === id);
+    if (s) {
+      const g = (eid) => document.getElementById(eid)?.value.trim();
+      s.name        = g('se-name')      || s.name;
+      s.country     = g('se-country')   || s.country;
+      s.city        = g('se-city')      || s.city;
+      s.contact     = g('se-contact')   || s.contact;
+      s.phone       = g('se-phone')     || s.phone;
+      s.wechat      = g('se-wechat')    || s.wechat;
+      s.email       = g('se-email')     || s.email;
+      s.about       = document.getElementById('se-about')?.value.trim() || s.about;
+      s.founded     = g('se-founded')   || s.founded;
+      s.employees   = g('se-employees') || s.employees;
+      s.factorySize = g('se-size')      || s.factorySize;
+      s.moq         = parseInt(g('se-moq')) || s.moq;
+      s.leadTime    = g('se-lead')      || s.leadTime;
+    }
+    state.supplierEditMode = false;
+    render();
+  }
+  else if (action === 'submit-supplier') {
+    const g = (eid) => document.getElementById(eid)?.value.trim();
+    const name    = g('sf-name');
+    const contact = g('sf-contact');
+    const country = g('sf-country');
+    if (!name || !contact || !country) {
+      if (!name)    document.getElementById('sf-name').style.borderColor    = 'var(--red)';
+      if (!contact) document.getElementById('sf-contact').style.borderColor = 'var(--red)';
+      if (!country) document.getElementById('sf-country').style.borderColor = 'var(--red)';
+      return;
+    }
+    const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const types = g('sf-types') ? g('sf-types').split(',').map(t => t.trim()).filter(Boolean) : [];
+    SUPPLIERS.push({
+      id, name, contact, country,
+      city:         g('sf-city')  || '',
+      phone:        g('sf-phone') || '',
+      wechat:       null,
+      email:        g('sf-email') || '',
+      types,
+      activeProjects: 0,
+      about: '',
+      founded: '—', employees: '—', factorySize: '—', moq: 0, leadTime: '—',
+      photos: [], products: [], catalogs: [], certifications: [],
+    });
+    state.modal = null;
+    render();
+  }
+  else if (action === 'open-modal') {
+    state.modal = target.dataset.modal;
+    render();
+  }
+  else if (action === 'close-modal') {
+    state.modal = null;
+    render();
+  }
+  else if (action === 'submit-client') {
+    const name    = document.getElementById('f-name')?.value.trim();
+    const contact = document.getElementById('f-contact')?.value.trim();
+    const city    = document.getElementById('f-city')?.value.trim();
+    const country = document.getElementById('f-country')?.value.trim();
+    const phone   = document.getElementById('f-phone')?.value.trim();
+    const email   = document.getElementById('f-email')?.value.trim();
+    if (!name || !contact) {
+      document.getElementById('f-name').style.borderColor = name ? '' : 'var(--red)';
+      document.getElementById('f-contact').style.borderColor = contact ? '' : 'var(--red)';
+      return;
+    }
+    const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    CLIENTS[id] = { name, contact, city, country, phone, email, suppliersEngaged: 0 };
+    state.modal = null;
+    render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
