@@ -1714,6 +1714,32 @@ a { color: inherit; text-decoration: none; }
 .q-composer textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); font-size: 13px; color: var(--ink); resize: none; outline: none; font-family: inherit; line-height: 1.4; }
 .q-composer textarea:focus { border-color: var(--ink); }
 
+/* sample review concern & deposit */
+.concern-photos-row { display: flex; gap: 8px; padding: 14px 22px 0; flex-wrap: wrap; }
+.concern-photo-thumb { width: 72px; height: 72px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); background: var(--surface-2); }
+.sample-history-bar { display: flex; align-items: center; gap: 10px; padding: 12px 22px; background: var(--surface-2); border-top: 1px solid var(--border); font-size: 12px; color: var(--ink-3); font-family: 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: .06em; }
+.sample-history-bar a { color: var(--accent); cursor: pointer; text-decoration: none; }
+
+/* negotiation thread (chat bubbles) */
+.negot-thread { display: flex; flex-direction: column; gap: 14px; padding: 18px 22px; }
+.negot-msg { display: flex; flex-direction: column; }
+.negot-msg.from-sl { align-items: flex-start; }
+.negot-msg.from-cl { align-items: flex-end; }
+.negot-bubble {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.55;
+  max-width: 86%;
+}
+.negot-msg.from-sl .negot-bubble { background: var(--surface-2); border: 1px solid var(--border); color: var(--ink-2); border-bottom-left-radius: 3px; }
+.negot-msg.from-cl .negot-bubble { background: var(--ink); color: rgba(255,255,255,0.92); border-bottom-right-radius: 3px; }
+.negot-msg-meta { font-size: 10.5px; font-family: 'Geist Mono', monospace; color: var(--ink-3); margin-top: 5px; }
+/* quote round connector */
+.quote-round-connector { display: flex; align-items: center; gap: 10px; margin: 4px 0 16px; padding: 0 4px; }
+.quote-round-connector::before, .quote-round-connector::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.quote-round-connector span { font-size: 10px; font-family: 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); white-space: nowrap; }
+
 /* quote issue form */
 .quote-form-body { padding: 18px 22px; display: flex; flex-direction: column; gap: 12px; }
 
@@ -2122,6 +2148,14 @@ const SUPPLIERS = [
     'SL-2026-0145': {
       techPack: { name: 'Tote_Reference_Swatch.pdf', size: '0.9 MB', pages: 3, uploaded: 'Apr 7, 2026' },
       questions: [],
+      quoteHistory: [
+        { id: 'Q1', unit: 4.10, total: 4100, leadTime: '45 days', moq: 1000, notes: 'Initial quote. 12oz recycled canvas with single-colour screen print both sides. Sample fee waived on confirmed PO.', issuedAt: 'Apr 8, 2026', status: 'countered' },
+        { id: 'Q2', unit: 3.85, total: 3850, leadTime: '45 days', moq: 1000, notes: 'Revised: supplier agreed to reduce unit cost by consolidating print runs with another tote order on the same line. Pantone match confirmed against your swatch.', issuedAt: 'Apr 9, 2026', status: 'pending' },
+      ],
+      negotiation: [
+        { from: 'Atlas Oak', body: 'Thanks for the quote — our target is $4.50 landed, so the $4.10 is actually within range. That said, if you can get us below $4, we\'d confirm the full 1,000 units immediately and skip negotiation.', when: 'Apr 8, 2026' },
+        { from: 'SourceLab', body: 'Appreciated — we pushed the supplier on this. Best they can offer at 1,000 units is $3.85, which is below your target. They\'re combining your print run with another order on the same line to get there. Updated quote attached above.', when: 'Apr 9, 2026' },
+      ],
     },
     'SL-2026-0139': {
       techPack: { name: 'Linen_CampShirt_Sketch_v2.pdf', size: '1.6 MB', pages: 6, uploaded: 'Mar 28, 2026' },
@@ -2155,6 +2189,93 @@ const SUPPLIERS = [
     'SL-2026-0131': {
       techPack: { name: 'Crewneck_Full_TechPack.pdf', size: '3.1 MB', pages: 18, uploaded: 'Mar 18, 2026' },
       questions: [],
+      quote: { unit: 19.80, total: 11880, currency: 'USD', leadTime: '55 days', moq: 600, validity: 'Accepted', notes: 'Garment-dye batch charges included.' },
+      quoteHistory: [
+        { id: 'Q1', unit: 22.50, total: 13500, leadTime: '60 days', moq: 600, notes: 'Initial quote based on garment-dye process. Separate dye batch per colourway. Lead time 60 days from PO confirmation.', issuedAt: 'Mar 20, 2026', status: 'countered' },
+        { id: 'Q2', unit: 19.80, total: 11880, leadTime: '55 days', moq: 600, notes: 'Revised: supplier agreed to combine the Faded Black and Washed Olive into a single dye bath run, reducing batch cost. Lead time also shortened by 5 days. Garment-dye batch charges included in unit price.', issuedAt: 'Mar 24, 2026', status: 'accepted' },
+      ],
+      negotiation: [
+        { from: 'Atlas Oak', body: 'The $22.50 quote is just above our $22 target. We\'re committed to the full 600-unit MOQ — is there any way to get us to $20 or below? Flexible on lead time if that helps.', when: 'Mar 21, 2026' },
+        { from: 'SourceLab', body: 'Good news — we spoke to the factory about combining both colourways into one dye bath rather than separate batches. That saves cost on setup. They can do $19.80 at 600 units, with the lead time also coming down to 55 days. Revised quote is above.', when: 'Mar 23, 2026' },
+        { from: 'Atlas Oak', body: '$19.80 is great — well under target. Happy to confirm. Going ahead with the full 600.', when: 'Mar 24, 2026' },
+      ],
+      samplePhotos: [
+        { id: 'cr-p1', label: 'Front · Faded Black',  approved: true, hue: 0,  sat: 0  },
+        { id: 'cr-p2', label: 'Back · Faded Black',   approved: true, hue: 0,  sat: 0  },
+        { id: 'cr-p3', label: 'Front · Washed Olive', approved: true, hue: 80, sat: 18 },
+        { id: 'cr-p4', label: 'Ribbing detail',        approved: true, hue: 0,  sat: 0  },
+      ],
+    },
+    'SL-2026-0124': {
+      quote: { unit: 10.40, total: 8320, currency: 'USD', leadTime: '45 days', moq: 800, validity: 'Accepted', notes: 'Fringe finish confirmed per reference.' },
+      samplePhotos: [
+        { id: 'bt-p1', label: 'Full lay · Cream',      approved: true, hue: 42, sat: 18 },
+        { id: 'bt-p2', label: 'Full lay · Terracotta',  approved: true, hue: 18, sat: 55 },
+        { id: 'bt-p3', label: 'Fringe detail',          approved: true, hue: 42, sat: 18 },
+        { id: 'bt-p4', label: 'Label close-up',         approved: true, hue: 42, sat: 12 },
+      ],
+      sampleTracking: { courier: 'DHL Express', number: '3381 2290 7710', pickup: 'Apr 5, 2026', eta: 'Apr 9, 2026', destination: '14 Redchurch Street, London E2 7DJ, UK' },
+    },
+    'SL-2026-0117': {
+      quote: { unit: 5.60, total: 5600, currency: 'USD', leadTime: '50 days', moq: 1000, validity: 'Accepted', notes: 'Price includes branded kraft outer box and etching.' },
+      quoteHistory: [
+        { id: 'Q1', unit: 7.20, total: 7200, leadTime: '65 days', moq: 1000, notes: 'Initial quote. FSC acacia lid with borosilicate glass body. Branded kraft outer included. Etching setup fee charged separately.', issuedAt: 'Feb 25, 2026', status: 'rejected' },
+        { id: 'Q2', unit: 6.20, total: 6200, leadTime: '55 days', moq: 1000, notes: 'Revised: removed per-unit etching setup amortisation by bundling it into a one-time tooling charge. Etching now included in unit price. Acacia sourced from existing supplier stock — lead time reduced.', issuedAt: 'Feb 27, 2026', status: 'countered' },
+        { id: 'Q3', unit: 5.60, total: 5600, leadTime: '50 days', moq: 1000, notes: 'Final quote: supplier absorbed etching tooling cost in exchange for a 12-month exclusivity on acacia lid orders. All branding (etching + kraft outer) fully included. Best achievable at this MOQ.', issuedAt: 'Mar 2, 2026', status: 'accepted' },
+      ],
+      negotiation: [
+        { from: 'Atlas Oak', body: 'The $7.20 is significantly above our $6.20 target — we can\'t make the margin work at that price. Is there a way to restructure the cost, or would a different material bring it down?', when: 'Feb 25, 2026' },
+        { from: 'SourceLab', body: 'Understood. The main cost driver is the per-unit etching setup being amortised across the run. We can pull that out as a one-time tooling charge instead, which brings the unit cost to $6.20. This is exactly your target. Revised quote sent above.', when: 'Feb 26, 2026' },
+        { from: 'Atlas Oak', body: 'That helps a lot. One concern: the acacia lid sourcing — can you confirm it\'s FSC certified? Also, is there any room on the $6.20, even by a few cents? We have some internal margin pressure.', when: 'Feb 27, 2026' },
+        { from: 'SourceLab', body: 'FSC certification confirmed — we\'ve attached the supplier\'s chain-of-custody doc to the brief. On price: we went back to the supplier and they offered $5.60 flat if you agree to a 12-month exclusivity on acacia lid orders routed through them. That\'s a $600 saving on this run alone. Final quote above.', when: 'Mar 1, 2026' },
+        { from: 'Atlas Oak', body: 'The exclusivity is fine — we\'re not working with another acacia supplier anyway. $5.60 confirmed, let\'s go.', when: 'Mar 2, 2026' },
+      ],
+      samplePhotos: [
+        { id: 'gj-p1', label: 'Jar front · etching', approved: true, hue: 200, sat: 8  },
+        { id: 'gj-p2', label: 'Lid detail',           approved: true, hue: 35,  sat: 25 },
+        { id: 'gj-p3', label: 'Clamp & gasket',       approved: true, hue: 200, sat: 6  },
+        { id: 'gj-p4', label: 'Outer box',            approved: true, hue: 38,  sat: 14 },
+      ],
+      sampleTracking: { courier: 'FedEx International', number: '7742 0031 8892', pickup: 'Mar 10, 2026', eta: 'Mar 15, 2026', destination: '14 Redchurch Street, London E2 7DJ, UK' },
+    },
+    'SL-2026-0102': {
+      quote: { unit: 7.80, total: 5850, currency: 'USD', leadTime: '45 days', moq: 750, validity: 'Accepted', notes: 'Reflective print setup fee waived.' },
+      samplePhotos: [
+        { id: 'cc-p1', label: 'Cap front · Bone',  approved: true, hue: 40, sat: 12 },
+        { id: 'cc-p2', label: 'Cap front · Olive', approved: true, hue: 80, sat: 22 },
+        { id: 'cc-p3', label: 'Mesh side panel',   approved: true, hue: 0,  sat: 0  },
+        { id: 'cc-p4', label: 'Reflective logo',   approved: true, hue: 0,  sat: 0  },
+      ],
+      sampleTracking: { courier: 'DHL Express', number: '6621 4490 8812', pickup: 'Feb 28, 2026', eta: 'Mar 4, 2026', destination: '14 Redchurch Street, London E2 7DJ, UK' },
+    },
+    'SL-2026-0089': {
+      quote: { unit: 5.20, total: 7800, currency: 'USD', leadTime: '50 days', moq: 1500, validity: 'Accepted', notes: 'MOQ met across three colorways combined.' },
+      samplePhotos: [
+        { id: 'ms-p1', label: 'Sock pair · Charcoal',  approved: true, hue: 0,  sat: 0  },
+        { id: 'ms-p2', label: 'Sock pair · Sand',      approved: true, hue: 38, sat: 25 },
+        { id: 'ms-p3', label: 'Cushioned sole detail', approved: true, hue: 0,  sat: 0  },
+        { id: 'ms-p4', label: 'Woven label',           approved: true, hue: 38, sat: 14 },
+      ],
+      sampleTracking: { courier: 'FedEx International', number: '1122 3345 9980', pickup: 'Feb 8, 2026', eta: 'Feb 13, 2026', destination: '14 Redchurch Street, London E2 7DJ, UK' },
+    },
+    'SL-2025-0061': {
+      quote: { unit: 22.50, total: 9000, currency: 'USD', leadTime: '75 days', moq: 400, validity: 'Accepted', notes: 'Brass hardware sourced from certified supplier.' },
+      quoteHistory: [
+        { id: 'Q1', unit: 26.00, total: 10400, leadTime: '80 days', moq: 400, notes: 'Initial quote. Vegetable-tanned leather with solid brass hardware and adjustable webbing strap. Three colourways. Kraft outer box included.', issuedAt: 'Nov 15, 2025', status: 'countered' },
+        { id: 'Q2', unit: 22.50, total: 9000, leadTime: '75 days', moq: 400, notes: 'Revised: supplier agreed to reduce hardware sourcing premium by switching to a certified brass supplier they use for another client, sharing the minimum order. Brass quality and finish are identical. Lead time shortened by 5 days. All branding included.', issuedAt: 'Nov 18, 2025', status: 'accepted' },
+      ],
+      negotiation: [
+        { from: 'Atlas Oak', body: 'The $26 is higher than we\'d like — our target was $28 landed, so technically it\'s within range, but we\'re being asked to rationalise costs across the range. Can you get us to $24 or below?', when: 'Nov 16, 2025' },
+        { from: 'SourceLab', body: 'We hear you. The brass hardware is the main cost driver here — solid brass with a certified supplier commands a premium. We\'ve found a way to share a hardware order with another client using the same brass spec, which brings the unit cost to $22.50. That\'s well below your target. Revised quote above.', when: 'Nov 17, 2025' },
+        { from: 'Atlas Oak', body: '$22.50 is a great result — that gives us real margin to work with. Confirmed, let\'s proceed.', when: 'Nov 18, 2025' },
+      ],
+      samplePhotos: [
+        { id: 'cx-p1', label: 'Bag front · Field Tan', approved: true, hue: 38, sat: 30 },
+        { id: 'cx-p2', label: 'Bag front · Forest',    approved: true, hue: 95, sat: 22 },
+        { id: 'cx-p3', label: 'Strap & hardware',      approved: true, hue: 32, sat: 28 },
+        { id: 'cx-p4', label: 'Interior lining',       approved: true, hue: 22, sat: 18 },
+      ],
+      sampleTracking: { courier: 'DHL Express', number: '9920 1132 4410', pickup: 'Dec 5, 2025', eta: 'Dec 10, 2025', destination: '14 Redchurch Street, London E2 7DJ, UK' },
     },
   };
   ORDERS.forEach(o => { if (aug[o.id]) Object.assign(o, aug[o.id]); });
@@ -2189,6 +2310,19 @@ ORDERS.forEach(o => {
       if (iter.photos) photoApprovals[key] = Object.fromEntries(iter.photos.map(p => [p.id, false]));
     });
   }
+});
+
+// per-order sample workflow runtime state
+const sampleRuntime = {};
+ORDERS.forEach(o => {
+  sampleRuntime[o.id] = {
+    deliveryChoice: null,       // null | 'courier' | 'sl'
+    courierLabelUploaded: false,
+    sampleReceived: false,
+    reviewDecision: null,       // null | 'approved' | 'concern'
+    concern: null,              // { status: 'form'|'submitted'|'responded'|'iteration-requested', description, adminResponse }
+    deposit30Paid: false,
+  };
 });
 
 /* ──────────────────────────────────────────────────────────
@@ -2803,9 +2937,104 @@ function renderProductBriefTab(order) {
   `;
 }
 
+/* ── quote history renderer (multi-round negotiation) ── */
+function renderQuoteHistory(history, negotiation, order, isAdmin, isPastQuoting) {
+  let html = '';
+
+  history.forEach(function(q, idx) {
+    const isLast = idx === history.length - 1;
+    const isCurrent = isLast && !isPastQuoting;
+    const isPending = q.status === 'pending';
+    const isDimmed = !isLast;
+
+    const badgeMap = { accepted: ['green', '✓ Accepted'], rejected: ['red', '✗ Rejected'], countered: ['amber', 'Countered'], pending: ['amber', isAdmin ? 'Awaiting response' : 'Review needed'] };
+    const [badgeClass, badgeLabel] = badgeMap[q.status] || ['amber', q.status];
+
+    html += '<div class="card" style="margin-bottom:16px;' + (isDimmed ? 'opacity:0.6;' : '') + '">' +
+      '<div class="card-head">' +
+        '<div>' +
+          '<div class="card-title">Quote ' + q.id + '</div>' +
+          '<div class="card-title-sub">Issued by SourceLab · ' + q.issuedAt + '</div>' +
+        '</div>' +
+        '<span class="badge-status ' + badgeClass + '">' + badgeLabel + '</span>' +
+      '</div>' +
+      '<div class="quote-block">' +
+        '<div class="quote-figure">' +
+          '<div><div class="quote-fig-label">Unit price</div><div class="quote-fig-val">' + fmtUSD(q.unit) + ' <small>USD</small></div></div>' +
+          '<div><div class="quote-fig-label">Total</div><div class="quote-fig-val">' + fmtUSD(q.total) + '</div></div>' +
+          '<div><div class="quote-fig-label">Lead time</div><div class="quote-fig-val">' + q.leadTime.split(' ')[0] + ' <small>days</small></div></div>' +
+          '<div><div class="quote-fig-label">MOQ</div><div class="quote-fig-val">' + (q.moq||0).toLocaleString() + ' <small>units</small></div></div>' +
+        '</div>' +
+        '<div style="font-size:13px;color:var(--ink-2);line-height:1.55;">' + q.notes + '</div>' +
+      '</div>' +
+      // Client action buttons on current pending quote
+      (isCurrent && isPending && !isAdmin
+        ? '<div style="border-top:1px solid var(--border);padding:16px 22px;display:flex;gap:8px;flex-wrap:wrap;">' +
+            '<button class="btn btn-primary">✓ Accept quote</button>' +
+            '<button class="btn btn-secondary">Negotiate</button>' +
+            '<button class="btn btn-danger">Reject</button>' +
+          '</div>'
+        : '') +
+      // Admin revise panel on current pending quote
+      (isCurrent && isPending && isAdmin
+        ? '<div style="border-top:1px solid var(--border);padding:16px 22px;">' +
+            '<div style="font-size:12px;font-weight:500;color:var(--ink);margin-bottom:12px;">Revise quote</div>' +
+            '<div class="form-row two" style="margin-bottom:10px;">' +
+              '<div class="form-group"><label class="form-label">Unit price (USD)</label><input class="form-input" value="' + q.unit + '" /></div>' +
+              '<div class="form-group"><label class="form-label">Lead time</label><input class="form-input" value="' + q.leadTime + '" /></div>' +
+            '</div>' +
+            '<button class="btn btn-primary btn-sm">Update & re-send to client</button>' +
+          '</div>'
+        : '') +
+    '</div>';
+
+    // Connector between rounds
+    if (!isLast) {
+      html += '<div class="quote-round-connector"><span>Client response</span></div>';
+    }
+  });
+
+  // Negotiation thread
+  if (negotiation.length > 0) {
+    const clientName = order.clientId ? (CLIENTS[order.clientId] || {}).name || 'Client' : 'Client';
+    html += '<div class="card" style="margin-top:4px;">' +
+      '<div class="card-head">' +
+        '<div><div class="card-title">Negotiation thread</div>' +
+        '<div class="card-title-sub">' + negotiation.length + ' message' + (negotiation.length > 1 ? 's' : '') + '</div></div>' +
+      '</div>' +
+      '<div class="negot-thread">' +
+        negotiation.map(function(msg) {
+          const isSL = msg.from === 'SourceLab';
+          return '<div class="negot-msg ' + (isSL ? 'from-sl' : 'from-cl') + '">' +
+            '<div class="negot-bubble">' + msg.body + '</div>' +
+            '<div class="negot-msg-meta">' + (isSL ? 'SourceLab' : clientName) + ' · ' + msg.when + '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>' +
+      (!isPastQuoting
+        ? '<div class="q-composer">' +
+            '<textarea rows="2" placeholder="' + (isAdmin ? 'Reply to client…' : 'Ask a question or suggest a counter-offer…') + '"></textarea>' +
+            '<div style="display:flex;justify-content:flex-end;"><button class="btn btn-primary btn-sm">Send</button></div>' +
+          '</div>'
+        : '') +
+    '</div>';
+  } else if (!isPastQuoting) {
+    html += '<div class="card" style="margin-top:4px;">' +
+      '<div class="card-head"><div class="card-title">Negotiation thread</div><div class="card-title-sub">No messages yet</div></div>' +
+      '<div class="q-composer">' +
+        '<textarea rows="2" placeholder="' + (isAdmin ? 'Message the client…' : 'Ask a question or suggest a counter-offer…') + '"></textarea>' +
+        '<div style="display:flex;justify-content:flex-end;"><button class="btn btn-primary btn-sm">Send</button></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  return html;
+}
+
 /* ── inquiry & quotes tab ── */
 function renderInquiryQuotesTab(order) {
   const isAdmin = state.view === 'admin';
+  const isPastQuoting = stageIndex(order.stage) > stageIndex('quoting');
 
   // Stage-specific quote content
   let content = '';
@@ -2852,14 +3081,20 @@ function renderInquiryQuotesTab(order) {
           <div class="action-panel-body">Your inquiry is with our sourcing team. We'll send a quote within 24–48 hours.</div>
         </div>`;
     }
+  } else if (stageIndex(order.stage) < stageIndex('quoting')) {
+    content = '<div class="card"><div class="empty-state">No quotes issued yet.</div></div>';
+  } else if (order.quoteHistory && order.quoteHistory.length > 0) {
+    // ── Multi-round quote history (negotiation) ──
+    return renderQuoteHistory(order.quoteHistory, order.negotiation || [], order, isAdmin, isPastQuoting);
   } else if (order.stage === 'quoting' && order.quote) {
+    // ── Single quote, active quoting stage ──
     const q = order.quote;
     const questions = order.questions || [];
     content = `
       <div class="card" style="margin-bottom:20px;">
         <div class="card-head">
           <div>
-            <div class="card-title">Quote ${order.id}-Q1</div>
+            <div class="card-title">Quote from SourceLab</div>
             <div class="card-title-sub">${q.supplier ? q.supplier + ' · via SourceLab' : 'Issued by SourceLab'} · valid for ${q.validity}</div>
           </div>
           ${isAdmin
@@ -2910,12 +3145,443 @@ function renderInquiryQuotesTab(order) {
           </div>` : ''}
         </div>` : ''}
       </div>`;
-  } else {
-    // other stages — quote is settled
-    content = `<div class="card"><div class="empty-state">${stageIndex(order.stage) < stageIndex('quoting') ? 'No quotes issued yet.' : 'Quote accepted — order is in progress.'}</div></div>`;
+  } else if (isPastQuoting) {
+    // ── Single accepted quote, historical (no quoteHistory) ──
+    const q = order.quote;
+    if (!q) {
+      content = '<div class="card"><div class="empty-state">Quote accepted — order is in progress.</div></div>';
+    } else {
+      content = '<div class="card">' +
+        '<div class="card-head">' +
+          '<div><div class="card-title">Quote from SourceLab</div>' +
+          '<div class="card-title-sub">' + q.leadTime + ' lead time · ' + (order.quantity||0).toLocaleString() + ' units</div></div>' +
+          '<span class="badge-status green">✓ Accepted</span>' +
+        '</div>' +
+        '<div class="quote-block">' +
+          '<div class="quote-figure">' +
+            '<div><div class="quote-fig-label">Unit price</div><div class="quote-fig-val">' + fmtUSD(q.unit) + ' <small>USD</small></div></div>' +
+            '<div><div class="quote-fig-label">Total</div><div class="quote-fig-val">' + fmtUSD(q.total) + '</div></div>' +
+            '<div><div class="quote-fig-label">Lead time</div><div class="quote-fig-val">' + q.leadTime.split(' ')[0] + ' <small>days</small></div></div>' +
+            '<div><div class="quote-fig-label">MOQ</div><div class="quote-fig-val">' + (q.moq||0).toLocaleString() + ' <small>units</small></div></div>' +
+          '</div>' +
+          (q.notes ? '<div style="font-size:13px;color:var(--ink-2);line-height:1.55;">' + q.notes + '</div>' : '') +
+        '</div>' +
+      '</div>';
+    }
   }
 
   return content;
+}
+
+/* ─────────────────────────────────────────────────────────
+   SAMPLE STAGE HELPERS
+   ───────────────────────────────────────────────────────── */
+
+function renderSamplingStage(order, isAdmin) {
+  const rt = sampleRuntime[order.id] || {};
+
+  // ── No photos uploaded yet ──
+  if (!order.samplePhotos || order.samplePhotos.length === 0) {
+    return '<div class="card">' +
+      '<div class="card-head">' +
+        '<div><div class="card-title">Sample in production</div>' +
+        '<div class="card-title-sub">Factory is preparing your sample</div></div>' +
+        '<span class="badge-status blue">In progress</span>' +
+      '</div>' +
+      '<div style="padding:16px 22px 6px;font-size:13px;color:var(--ink-2);line-height:1.6;">The factory is currently manufacturing your physical sample. Photos will appear here once the sample is complete — you\'ll approve them before the physical sample is dispatched.</div>' +
+      (isAdmin
+        ? '<div style="padding:12px 22px 18px;"><button class="btn btn-primary btn-sm">+ Upload sample photos</button></div>'
+        : '<div style="padding:0 22px 18px;font-size:12px;color:var(--ink-3);">You\'ll be notified when factory photos are ready to review.</div>') +
+    '</div>';
+  }
+
+  // ── Has photos — approval grid ──
+  const approvals = photoApprovals[order.id] || {};
+  const approvedCount = Object.values(approvals).filter(Boolean).length;
+  const total = order.samplePhotos.length;
+  const allApproved = total > 0 && approvedCount === total;
+
+  let html = '<div class="card" style="margin-bottom:20px;">' +
+    '<div class="card-head">' +
+      '<div><div class="card-title">Sample v1 — Factory photos</div>' +
+      '<div class="card-title-sub">' + approvedCount + ' of ' + total + ' approved</div></div>' +
+      (isAdmin ? '<button class="btn btn-secondary btn-sm">+ Upload photo</button>' : '') +
+    '</div>' +
+    '<div class="photo-grid">' +
+      order.samplePhotos.map(function(p) {
+        const approved = approvals[p.id];
+        const clickAttr = !isAdmin
+          ? ' data-action="toggle-photo" data-id="' + p.id + '" data-order="' + order.id + '"'
+          : '';
+        return '<div class="photo ' + (approved ? 'approved' : '') + '"' + clickAttr + '>' +
+          svgFabric(p.hue, p.sat, p.label) +
+          '<div class="photo-check">' + (approved ? '✓' : '') + '</div>' +
+          '<div class="photo-label">' + p.label + '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+  '</div>';
+
+  if (isAdmin) return html;
+
+  // ── Client delivery flow ──
+  if (!allApproved) {
+    html += '<div class="action-panel">' +
+      '<div class="action-panel-eyebrow">Photo review</div>' +
+      '<div class="action-panel-title">Approve all ' + total + ' photos to continue</div>' +
+      '<div class="action-panel-body">' + (total - approvedCount) + ' photo' + (total - approvedCount === 1 ? '' : 's') + ' still need your review. Tap each photo to mark it approved.</div>' +
+    '</div>';
+  } else if (!rt.deliveryChoice) {
+    html += '<div class="action-panel">' +
+      '<div class="action-panel-eyebrow">All photos approved ✓</div>' +
+      '<div class="action-panel-title">Arrange sample pickup</div>' +
+      '<div class="action-panel-body">Your sample is ready at the factory. Choose how you\'d like the physical sample delivered to you.</div>' +
+      '<div class="action-panel-buttons">' +
+        '<button class="btn btn-primary" data-action="sample-delivery-courier" data-order="' + order.id + '">Use my courier account</button>' +
+        '<button class="btn btn-secondary" data-action="sample-delivery-sl" data-order="' + order.id + '">SourceLab arranges <span style="font-size:11px;opacity:0.65">(est. $45–65)</span></button>' +
+      '</div>' +
+    '</div>';
+  } else if (rt.deliveryChoice === 'courier' && !rt.courierLabelUploaded) {
+    html += '<div class="card">' +
+      '<div class="card-head">' +
+        '<div><div class="card-title">Upload your pickup label</div>' +
+        '<div class="card-title-sub">Your courier will collect the sample from the factory</div></div>' +
+      '</div>' +
+      '<div class="upload-zone" style="margin:0 22px 16px;">' +
+        '<div class="upload-icon">📋</div>' +
+        '<div class="upload-text">Drop your pickup label here or click to browse</div>' +
+        '<div class="upload-hint">PDF, PNG, JPG · max 10 MB</div>' +
+      '</div>' +
+      '<div style="padding:0 22px 18px;display:flex;gap:8px;">' +
+        '<button class="btn btn-primary" data-action="upload-courier-label" data-order="' + order.id + '">Submit pickup label</button>' +
+        '<button class="btn btn-ghost" data-action="sample-delivery-reset" data-order="' + order.id + '">Back</button>' +
+      '</div>' +
+    '</div>';
+  } else if (rt.deliveryChoice === 'courier' && rt.courierLabelUploaded) {
+    html += '<div class="card">' +
+      '<div class="card-head">' +
+        '<div><div class="card-title">Pickup label received ✓</div>' +
+        '<div class="card-title-sub">Factory is packaging the sample for collection</div></div>' +
+        '<span class="badge-status green">Label submitted</span>' +
+      '</div>' +
+      '<div style="padding:16px 22px 18px;font-size:13px;color:var(--ink-2);line-height:1.6;">Your pickup label has been forwarded to the factory. The sample will be packaged and ready for collection within 24 hours. You\'ll be notified once it\'s picked up and in transit.</div>' +
+    '</div>';
+  } else if (rt.deliveryChoice === 'sl') {
+    html += '<div class="card">' +
+      '<div class="card-head">' +
+        '<div><div class="card-title">SourceLab arranging pickup ✓</div>' +
+        '<div class="card-title-sub">We\'re coordinating collection from the factory</div></div>' +
+        '<span class="badge-status blue">Arranging</span>' +
+      '</div>' +
+      '<div style="padding:16px 22px 18px;font-size:13px;color:var(--ink-2);line-height:1.6;">We\'re coordinating pickup with our logistics partner. Estimated 2–3 business days to collect. You\'ll receive a tracking number once the sample is on its way.</div>' +
+    '</div>';
+  }
+
+  return html;
+}
+
+function renderSampleTransitStage(order, isAdmin) {
+  const rt = sampleRuntime[order.id] || {};
+
+  let html = '<div class="card" style="margin-bottom:20px;">' +
+    '<div class="card-head">' +
+      '<div><div class="card-title">Sample in transit</div></div>' +
+      '<span class="badge-status blue">In transit</span>' +
+    '</div>' +
+    '<div class="tracking-card">' +
+      (order.tracking
+        ? '<div class="tracking-row"><div class="k">Courier</div><div class="v">' + order.tracking.courier + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Tracking</div><div class="v mono">' + order.tracking.number + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Picked up</div><div class="v">' + order.tracking.pickup + '</div></div>' +
+          '<div class="tracking-row"><div class="k">ETA</div><div class="v">' + order.tracking.eta + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Destination</div><div class="v">' + order.tracking.destination + '</div></div>'
+        : '<div class="tracking-row"><div class="k">Status</div><div class="v">Sample dispatched — tracking details coming shortly.</div></div>') +
+    '</div>' +
+  '</div>';
+
+  if (!isAdmin) {
+    if (!rt.sampleReceived) {
+      html += '<div class="action-panel">' +
+        '<div class="action-panel-eyebrow">Awaiting delivery</div>' +
+        '<div class="action-panel-title">Sample on its way to you</div>' +
+        '<div class="action-panel-body">Once the sample arrives at your address, mark it as received to begin your physical review.</div>' +
+        '<div class="action-panel-buttons">' +
+          '<button class="btn btn-primary" data-action="mark-sample-received" data-order="' + order.id + '">Mark as received</button>' +
+        '</div>' +
+      '</div>';
+    } else {
+      html += '<div class="action-panel">' +
+        '<div class="action-panel-eyebrow">Delivered ✓</div>' +
+        '<div class="action-panel-title">Sample received</div>' +
+        '<div class="action-panel-body">Moving you to the sample review stage now…</div>' +
+      '</div>';
+    }
+  } else {
+    html += '<div class="action-panel">' +
+      '<div class="action-panel-eyebrow">In transit</div>' +
+      '<div class="action-panel-title">Waiting for client to confirm receipt</div>' +
+      '<div class="action-panel-body">Sample is on its way. Once the client marks it as received, it will move to Sample Review.</div>' +
+    '</div>';
+  }
+  return html;
+}
+
+function renderSampleReviewStage(order, isAdmin) {
+  const rt = sampleRuntime[order.id] || {};
+
+  // Get order total for deposit calculation
+  const acceptedQ = order.quoteHistory ? order.quoteHistory.find(function(q) { return q.status === 'accepted'; }) : null;
+  const totalOrderValue = acceptedQ ? acceptedQ.total : (order.quote ? order.quote.total : (order.quantity || 0) * (order.target || 0));
+  const deposit30 = Math.round(totalOrderValue * 0.3);
+
+  let html = '';
+
+  // Brief history bar showing approved photos (always shown at top)
+  if (order.samplePhotos && order.samplePhotos.length > 0) {
+    html += '<div class="card" style="margin-bottom:16px;opacity:0.7;">' +
+      '<div class="card-head">' +
+        '<div><div class="card-title">Sample v1 — Photos</div>' +
+        '<div class="card-title-sub">All photos approved before dispatch</div></div>' +
+        '<span class="badge-status green">✓ Approved</span>' +
+      '</div>' +
+      '<div class="photo-grid">' +
+        order.samplePhotos.map(function(p) {
+          return '<div class="photo approved">' + svgFabric(p.hue, p.sat, p.label) +
+            '<div class="photo-check">✓</div><div class="photo-label">' + p.label + '</div></div>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+  }
+
+  // ── Deposit paid (edge case — normally would be production stage) ──
+  if (rt.deposit30Paid) {
+    html += '<div class="card"><div class="card-head"><div class="card-title">30% deposit paid ✓</div></div>' +
+      '<div style="padding:14px 22px 16px;font-size:13px;color:var(--ink-2);">Deposit confirmed. Order has moved into bulk production.</div></div>';
+    return html;
+  }
+
+  // ── Approved — show deposit payment card ──
+  if (rt.reviewDecision === 'approved') {
+    html += '<div class="card" style="margin-bottom:16px;">' +
+      '<div class="card-head">' +
+        '<div><div class="card-title">Sample approved ✓</div>' +
+        '<div class="card-title-sub">Ready to move into bulk production</div></div>' +
+        '<span class="badge-status green">Approved</span>' +
+      '</div>' +
+      '<div style="padding:14px 22px 16px;font-size:13px;color:var(--ink-2);">' +
+        (isAdmin ? 'Client approved the physical sample. Awaiting 30% deposit to start production.' : 'You\'ve approved the physical sample. A 30% deposit is required to start bulk production.') +
+      '</div>' +
+    '</div>';
+
+    if (!isAdmin) {
+      html += '<div class="card">' +
+        '<div class="card-head">' +
+          '<div><div class="card-title">30% production deposit</div>' +
+          '<div class="card-title-sub">Secures your production slot and locks in the agreed unit price</div></div>' +
+        '</div>' +
+        '<div class="quote-block">' +
+          '<div class="quote-figure">' +
+            '<div><div class="quote-fig-label">Order total</div><div class="quote-fig-val">' + fmtUSD(totalOrderValue) + '</div></div>' +
+            '<div><div class="quote-fig-label">30% deposit due now</div><div class="quote-fig-val" style="color:var(--accent);">' + fmtUSD(deposit30) + '</div></div>' +
+            '<div><div class="quote-fig-label">Balance on shipment</div><div class="quote-fig-val">' + fmtUSD(totalOrderValue - deposit30) + '</div></div>' +
+            '<div><div class="quote-fig-label">Quantity</div><div class="quote-fig-val">' + (order.quantity || 0).toLocaleString() + ' <small>units</small></div></div>' +
+          '</div>' +
+          '<div style="font-size:13px;color:var(--ink-2);line-height:1.5;">The deposit secures your production slot and locks in the agreed unit price. The balance is due prior to bulk shipment.</div>' +
+        '</div>' +
+        '<div style="border-top:1px solid var(--border);padding:16px 22px;">' +
+          '<button class="btn btn-primary" data-action="pay-sample-deposit" data-order="' + order.id + '">Pay ' + fmtUSD(deposit30) + ' deposit → start production</button>' +
+        '</div>' +
+      '</div>';
+    } else {
+      html += '<div class="action-panel">' +
+        '<div class="action-panel-eyebrow">Awaiting deposit</div>' +
+        '<div class="action-panel-title">Pending ' + fmtUSD(deposit30) + ' (30%) from client</div>' +
+        '<div class="action-panel-body">Sample approved. Client needs to pay the 30% deposit to begin bulk production.</div>' +
+      '</div>';
+    }
+    return html;
+  }
+
+  // ── Concern: iteration requested — awaiting fee payment ──
+  if (rt.reviewDecision === 'concern' && rt.concern && rt.concern.status === 'iteration-requested') {
+    if (rt.concern.description) {
+      html += '<div class="card" style="margin-bottom:16px;opacity:0.7;">' +
+        '<div class="card-head"><div><div class="card-title">Concern raised</div></div><span class="badge-status amber">Iteration requested</span></div>' +
+        '<div style="padding:12px 22px 14px;font-size:13px;color:var(--ink-2);">' + rt.concern.description + '</div>' +
+      '</div>';
+    }
+    if (!isAdmin) {
+      html += '<div class="card">' +
+        '<div class="card-head">' +
+          '<div><div class="card-title">New sample iteration</div>' +
+          '<div class="card-title-sub">Fee required to start the next round</div></div>' +
+          '<span class="badge-status amber">Awaiting payment</span>' +
+        '</div>' +
+        '<div class="quote-block">' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:14px;">' +
+            '<div><div class="quote-fig-label">Iteration fee</div><div class="quote-fig-val">$280 <small>USD</small></div></div>' +
+            '<div><div class="quote-fig-label">Estimated turnaround</div><div class="quote-fig-val">14–21 <small>days</small></div></div>' +
+          '</div>' +
+          '<div style="font-size:13px;color:var(--ink-2);line-height:1.5;">Covers factory sample materials, production and QC for the new iteration. This fee is credited against your bulk PO if the revised sample is approved.</div>' +
+        '</div>' +
+        '<div style="border-top:1px solid var(--border);padding:16px 22px;">' +
+          '<button class="btn btn-primary" data-action="pay-iteration-fee" data-order="' + order.id + '">Pay $280 to start new iteration</button>' +
+        '</div>' +
+      '</div>';
+    } else {
+      html += '<div class="action-panel">' +
+        '<div class="action-panel-eyebrow">Iteration requested</div>' +
+        '<div class="action-panel-title">Client awaiting payment of $280 sample fee</div>' +
+        '<div class="action-panel-body">Client has requested a new iteration. Waiting for them to pay the $280 sample fee to begin production of the revised sample.</div>' +
+      '</div>';
+    }
+    return html;
+  }
+
+  // ── Concern: admin responded — awaiting client decision ──
+  if (rt.reviewDecision === 'concern' && rt.concern && rt.concern.status === 'responded') {
+    html += '<div class="card" style="margin-bottom:16px;opacity:0.8;">' +
+      '<div class="card-head">' +
+        '<div><div class="card-title">Your concern</div>' +
+        '<div class="card-title-sub">Submitted by you · under review</div></div>' +
+        '<span class="badge-status amber">Concern raised</span>' +
+      '</div>' +
+      '<div style="padding:12px 22px 14px;font-size:13px;color:var(--ink-2);">' + (rt.concern.description || '') + '</div>' +
+    '</div>';
+
+    if (!isAdmin) {
+      html += '<div class="card" style="margin-bottom:20px;">' +
+        '<div class="card-head">' +
+          '<div><div class="card-title">Response from SourceLab</div></div>' +
+          '<span class="badge-status blue">Response received</span>' +
+        '</div>' +
+        '<div style="padding:14px 22px 18px;font-size:13px;color:var(--ink-2);line-height:1.65;">' + (rt.concern.adminResponse || '') + '</div>' +
+      '</div>' +
+      '<div class="action-panel">' +
+        '<div class="action-panel-eyebrow">Your decision</div>' +
+        '<div class="action-panel-title">Does our response resolve your concern?</div>' +
+        '<div class="action-panel-body">If you\'re satisfied with the explanation, resolve and approve the sample — a 30% deposit will follow. If the issue remains, request a new sample iteration (sample fee applies).</div>' +
+        '<div class="action-panel-buttons">' +
+          '<button class="btn btn-primary" data-action="concern-resolve-approve" data-order="' + order.id + '">✓ Resolve &amp; approve sample</button>' +
+          '<button class="btn btn-danger" data-action="concern-request-iteration" data-order="' + order.id + '">Request new iteration</button>' +
+        '</div>' +
+      '</div>';
+    } else {
+      html += '<div class="card" style="margin-bottom:20px;">' +
+        '<div class="card-head">' +
+          '<div><div class="card-title">Your response</div>' +
+          '<div class="card-title-sub">Sent to client · awaiting their decision</div></div>' +
+          '<span class="badge-status blue">Response sent</span>' +
+        '</div>' +
+        '<div style="padding:14px 22px 18px;font-size:13px;color:var(--ink-2);">' + (rt.concern.adminResponse || '') + '</div>' +
+      '</div>' +
+      '<div class="action-panel">' +
+        '<div class="action-panel-eyebrow">Awaiting client decision</div>' +
+        '<div class="action-panel-title">Client reviewing your response</div>' +
+        '<div class="action-panel-body">Client will either resolve the concern and approve the sample, or request a new iteration.</div>' +
+      '</div>';
+    }
+    return html;
+  }
+
+  // ── Concern submitted — awaiting admin response ──
+  if (rt.reviewDecision === 'concern' && rt.concern && rt.concern.status === 'submitted') {
+    html += '<div class="card" style="margin-bottom:20px;">' +
+      '<div class="card-head">' +
+        '<div><div class="card-title">Concern raised</div>' +
+        '<div class="card-title-sub">' + (isAdmin ? 'From client · awaiting your response' : 'Submitted · awaiting response from SourceLab') + '</div></div>' +
+        '<span class="badge-status amber">Under review</span>' +
+      '</div>' +
+      '<div style="padding:14px 22px 16px;font-size:13px;color:var(--ink-2);line-height:1.65;">' + (rt.concern.description || '') + '</div>' +
+    '</div>';
+
+    if (!isAdmin) {
+      html += '<div class="action-panel">' +
+        '<div class="action-panel-eyebrow">Awaiting response</div>' +
+        '<div class="action-panel-title">We\'re reviewing your concern</div>' +
+        '<div class="action-panel-body">Our team is looking into this and will respond within 1–2 business days.</div>' +
+      '</div>';
+    } else {
+      html += '<div class="card">' +
+        '<div class="card-head">' +
+          '<div><div class="card-title">Respond to client</div>' +
+          '<div class="card-title-sub">Your response will be sent directly to the client</div></div>' +
+        '</div>' +
+        '<div style="padding:16px 22px 18px;">' +
+          '<div class="form-group" style="margin-bottom:14px;">' +
+            '<label class="form-label">Your response</label>' +
+            '<textarea class="form-input" id="concern-response-' + order.id + '" rows="4" placeholder="Explain the situation, provide context, or acknowledge the issue and outline next steps…"></textarea>' +
+          '</div>' +
+          '<button class="btn btn-primary" data-action="admin-respond-concern" data-order="' + order.id + '">Send response to client</button>' +
+        '</div>' +
+      '</div>';
+    }
+    return html;
+  }
+
+  // ── Concern form open (filling in details) ──
+  if (rt.reviewDecision === 'concern' && rt.concern && rt.concern.status === 'form') {
+    if (!isAdmin) {
+      html += '<div class="card">' +
+        '<div class="card-head">' +
+          '<div><div class="card-title">Raise a concern</div>' +
+          '<div class="card-title-sub">Describe what you noticed — be as specific as possible</div></div>' +
+        '</div>' +
+        '<div style="padding:16px 22px 18px;">' +
+          '<div class="form-group" style="margin-bottom:16px;">' +
+            '<label class="form-label">What did you notice?</label>' +
+            '<textarea class="form-input" id="concern-desc-' + order.id + '" rows="5" placeholder="e.g. The stitching on the left shoulder seam appears uneven compared to the spec sheet. The colourway looks slightly more washed out than the Pantone reference we agreed…"></textarea>' +
+          '</div>' +
+          '<div style="margin-bottom:18px;">' +
+            '<div class="form-label" style="margin-bottom:8px;">Photos of the issue <span style="color:var(--ink-3);font-weight:400;">(optional)</span></div>' +
+            '<div class="upload-zone" style="padding:22px 28px;">' +
+              '<div class="upload-icon" style="font-size:18px;">📷</div>' +
+              '<div class="upload-text">Drop photos here or click to upload</div>' +
+              '<div class="upload-hint">JPG, PNG · max 20 MB each</div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:8px;">' +
+            '<button class="btn btn-primary" data-action="submit-concern" data-order="' + order.id + '">Submit concern</button>' +
+            '<button class="btn btn-ghost" data-action="cancel-concern" data-order="' + order.id + '">Cancel</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    } else {
+      html += '<div class="action-panel">' +
+        '<div class="action-panel-eyebrow">Concern in progress</div>' +
+        '<div class="action-panel-title">Client is raising a concern</div>' +
+        '<div class="action-panel-body">Client has started filling in a concern form about the physical sample. Waiting for them to submit details before you can respond.</div>' +
+      '</div>';
+    }
+    return html;
+  }
+
+  // ── Initial state — no decision yet ──
+  if (isAdmin) {
+    html += '<div class="action-panel">' +
+      '<div class="action-panel-eyebrow">Sample with client</div>' +
+      '<div class="action-panel-title">Awaiting physical review</div>' +
+      '<div class="action-panel-body">The physical sample has been delivered. Client is evaluating handfeel, colour accuracy, and finish before making a decision. They can approve, or raise a concern with photos and a description.</div>' +
+    '</div>';
+  } else {
+    html += '<div class="card" style="margin-bottom:16px;">' +
+      '<div class="card-head">' +
+        '<div><div class="card-title">Physical sample received</div>' +
+        '<div class="card-title-sub">Carefully evaluate before making your decision</div></div>' +
+        '<span class="badge-status purple">Your review</span>' +
+      '</div>' +
+      '<div style="padding:14px 22px 16px;font-size:13px;color:var(--ink-2);line-height:1.65;">Check the handfeel, colour accuracy against your reference, stitching quality and overall finish. Approving moves your order into bulk production and will require a 30% deposit. If something isn\'t right, raise a concern with photos — we\'ll respond within 1–2 days.</div>' +
+    '</div>' +
+    '<div class="action-panel">' +
+      '<div class="action-panel-eyebrow">Your decision</div>' +
+      '<div class="action-panel-title">How does the sample look and feel?</div>' +
+      '<div class="action-panel-buttons">' +
+        '<button class="btn btn-primary" data-action="approve-sample" data-order="' + order.id + '">✓ Approve sample</button>' +
+        '<button class="btn btn-secondary" data-action="raise-concern" data-order="' + order.id + '">Raise a concern</button>' +
+      '</div>' +
+    '</div>';
+  }
+  return html;
 }
 
 /* ── product development tab ── */
@@ -2924,7 +3590,75 @@ function renderProductDevTab(order) {
   const devStages = ['sampling','sample-transit','sample-review'];
   if (!devStages.includes(order.stage)) {
     const isAhead = stageIndex(order.stage) < stageIndex('sampling');
-    return '<div class="card"><div class="empty-state">' + (isAhead ? "This order hasn't entered sampling yet." : 'Product development is complete for this order.') + '</div></div>';
+    if (isAhead) {
+      return '<div class="card"><div class="empty-state">This order hasn\'t entered sampling yet.</div></div>';
+    }
+    // Past dev stages — render historical read-only archive
+    let html = '';
+
+    // Sample iteration history (multi-iteration orders)
+    if (order.sampleIterations && order.sampleIterations.length > 0) {
+      order.sampleIterations.forEach(function(iter) {
+        let photoGrid = '';
+        if (iter.photos && iter.photos.length > 0) {
+          photoGrid = '<div class="photo-grid">' +
+            iter.photos.map(function(p) {
+              return '<div class="photo approved">' + svgFabric(p.hue, p.sat, p.label) +
+                '<div class="photo-check">✓</div><div class="photo-label">' + p.label + '</div></div>';
+            }).join('') + '</div>';
+        }
+        const iterLabel = iter.status === 'completed' ? 'Changes requested' : 'Approved for production';
+        const iterBadge = iter.status === 'completed' ? 'amber' : 'green';
+        html += '<div class="card" style="margin-bottom:20px;opacity:0.85;">' +
+          '<div class="card-head"><div><div class="card-title">Sample v' + iter.version + ' — ' + iterLabel + '</div>' +
+          '<div class="card-title-sub">' + (iter.submittedAt || '') + '</div></div>' +
+          '<span class="badge-status ' + iterBadge + '">' + (iter.status === 'completed' ? 'Changes requested' : '✓ Approved') + '</span></div>' +
+          photoGrid +
+          (iter.changeNotes ? '<div style="padding:12px 22px;border-top:1px solid var(--border);background:var(--amber-bg);">' +
+            '<div style="font-size:10.5px;font-family:\'Geist Mono\',monospace;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);margin-bottom:4px;">Change request</div>' +
+            '<div style="font-size:13px;color:var(--ink-2);">' + iter.changeNotes + '</div></div>' : '') +
+        '</div>';
+      });
+    } else if (order.samplePhotos && order.samplePhotos.length > 0) {
+      // Single-iteration: render all approved sample photos
+      html += '<div class="card" style="margin-bottom:20px;">' +
+        '<div class="card-head"><div><div class="card-title">Sample v1 — Factory photos</div>' +
+        '<div class="card-title-sub">All photos approved</div></div>' +
+        '<span class="badge-status green">✓ Approved</span></div>' +
+        '<div class="photo-grid">' +
+          order.samplePhotos.map(function(p) {
+            return '<div class="photo approved">' + svgFabric(p.hue, p.sat, p.label) +
+              '<div class="photo-check">✓</div><div class="photo-label">' + p.label + '</div></div>';
+          }).join('') +
+        '</div></div>';
+    } else {
+      html += '<div class="card" style="margin-bottom:20px;"><div class="empty-state">Sample photos not on record.</div></div>';
+    }
+
+    // Sample shipment tracking
+    const sTrack = order.sampleTracking;
+    if (sTrack) {
+      html += '<div class="card" style="margin-bottom:20px;">' +
+        '<div class="card-head"><div class="card-title">Sample shipment</div>' +
+        '<span class="badge-status green">✓ Delivered</span></div>' +
+        '<div class="tracking-card">' +
+          '<div class="tracking-row"><div class="k">Courier</div><div class="v">' + sTrack.courier + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Tracking</div><div class="v mono">' + sTrack.number + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Picked up</div><div class="v">' + sTrack.pickup + '</div></div>' +
+          '<div class="tracking-row"><div class="k">ETA</div><div class="v">' + sTrack.eta + '</div></div>' +
+          '<div class="tracking-row"><div class="k">Destination</div><div class="v">' + sTrack.destination + '</div></div>' +
+        '</div></div>';
+    }
+
+    // Final approval decision card
+    html += '<div class="card">' +
+      '<div class="card-head"><div><div class="card-title">Physical sample review</div>' +
+      '<div class="card-title-sub">Client decision</div></div>' +
+      '<span class="badge-status green">✓ Approved for production</span></div>' +
+      '<div style="padding:14px 22px 16px;font-size:13px;color:var(--ink-2);">Sample approved by client. Order moved into bulk production.</div>' +
+    '</div>';
+
+    return html;
   }
 
   // ── multi-iteration sampling ──
@@ -2968,15 +3702,27 @@ function renderProductDevTab(order) {
 
       let actionPanel = '';
       if (isCurrentIter && !isAdmin && total > 0) {
-        if (allApproved) {
+        const iterRt = sampleRuntime[order.id] || {};
+        if (allApproved && !iterRt.deliveryChoice) {
           actionPanel = '<div class="action-panel" style="margin:0 16px 16px;">' +
-            '<div class="action-panel-eyebrow">Photos approved</div>' +
-            '<div class="action-panel-title">Arrange sample delivery</div>' +
-            '<div class="action-panel-body">All photos approved. Choose how you\'d like to receive the physical sample.</div>' +
+            '<div class="action-panel-eyebrow">All photos approved ✓</div>' +
+            '<div class="action-panel-title">Arrange sample pickup</div>' +
+            '<div class="action-panel-body">Your sample is ready at the factory. Choose how you\'d like the physical sample delivered to you.</div>' +
             '<div class="action-panel-buttons">' +
-              '<button class="btn btn-primary">Use my courier account</button>' +
-              '<button class="btn btn-secondary">SourceLab arranges</button>' +
+              '<button class="btn btn-primary" data-action="sample-delivery-courier" data-order="' + order.id + '">Use my courier account</button>' +
+              '<button class="btn btn-secondary" data-action="sample-delivery-sl" data-order="' + order.id + '">SourceLab arranges <span style="font-size:11px;opacity:0.65">(est. $45–65)</span></button>' +
             '</div></div>';
+        } else if (allApproved && iterRt.deliveryChoice) {
+          const dlMsg = iterRt.deliveryChoice === 'sl'
+            ? 'SourceLab is coordinating pickup — tracking details coming shortly.'
+            : (iterRt.courierLabelUploaded ? 'Pickup label submitted — factory packaging sample for collection.' : 'Upload your courier pickup label to proceed.');
+          actionPanel = '<div class="action-panel" style="margin:0 16px 16px;">' +
+            '<div class="action-panel-eyebrow">Delivery arranged</div>' +
+            '<div class="action-panel-title">' + dlMsg + '</div>' +
+            (iterRt.deliveryChoice === 'courier' && !iterRt.courierLabelUploaded
+              ? '<div class="action-panel-buttons"><button class="btn btn-primary" data-action="upload-courier-label" data-order="' + order.id + '">Submit pickup label</button></div>'
+              : '') +
+          '</div>';
         } else {
           actionPanel = '<div class="action-panel" style="margin:0 16px 16px;">' +
             '<div class="action-panel-eyebrow">Photo review</div>' +
@@ -3016,51 +3762,19 @@ function renderProductDevTab(order) {
     return html;
   }
 
-  // ── fallback: single sample photos ──
-  if (order.stage === 'sampling' && order.samplePhotos) {
-    const approvals = photoApprovals[order.id] || {};
-    const approvedCount = Object.values(approvals).filter(Boolean).length;
-    const total = order.samplePhotos.length;
-    const allApproved = approvedCount === total;
-    return '<div class="card" style="margin-bottom:20px;">' +
-      '<div class="card-head">' +
-        '<div><div class="card-title">Sample v1 — Factory photos</div>' +
-        '<div class="card-title-sub">' + approvedCount + ' of ' + total + ' approved</div></div>' +
-        (isAdmin ? '<button class="btn btn-secondary btn-sm">+ Upload photo</button>' : '') +
-      '</div>' +
-      '<div class="photo-grid">' +
-        order.samplePhotos.map(function(p) {
-          return '<div class="photo ' + (approvals[p.id]?'approved':'') + '" data-action="toggle-photo" data-id="' + p.id + '" data-order="' + order.id + '">' +
-            svgFabric(p.hue, p.sat, p.label) +
-            '<div class="photo-check">' + (approvals[p.id]?'✓':'') + '</div>' +
-            '<div class="photo-label">' + p.label + '</div></div>';
-        }).join('') +
-      '</div></div>' +
-      (!isAdmin ? (allApproved
-        ? '<div class="action-panel"><div class="action-panel-eyebrow">All approved</div><div class="action-panel-title">Arrange sample delivery</div><div class="action-panel-body">All photos approved. Choose how you\'d like to receive the physical sample.</div><div class="action-panel-buttons"><button class="btn btn-primary">Use my courier account</button><button class="btn btn-secondary">SourceLab arranges</button></div></div>'
-        : '<div class="action-panel"><div class="action-panel-eyebrow">Photo review</div><div class="action-panel-title">Approve all ' + total + ' photos to continue</div><div class="action-panel-body">' + (total-approvedCount) + ' photo' + (total-approvedCount===1?'':'s') + ' still need your review.</div></div>'
-      ) : '');
+  // ── Single-iteration sampling (no sampleIterations array) ──
+  if (order.stage === 'sampling') {
+    return renderSamplingStage(order, isAdmin);
   }
 
   if (order.stage === 'sample-transit') {
-    return '<div class="card"><div class="card-head"><div class="card-title">Sample in transit</div></div>' +
-      '<div class="tracking-card">' +
-        (order.tracking
-          ? '<div class="tracking-row"><div class="k">Courier</div><div class="v">' + order.tracking.courier + '</div></div>' +
-            '<div class="tracking-row"><div class="k">Tracking</div><div class="v mono">' + order.tracking.number + '</div></div>' +
-            '<div class="tracking-row"><div class="k">Picked up</div><div class="v">' + order.tracking.pickup + '</div></div>' +
-            '<div class="tracking-row"><div class="k">ETA</div><div class="v">' + order.tracking.eta + '</div></div>' +
-            '<div class="tracking-row"><div class="k">Destination</div><div class="v">' + order.tracking.destination + '</div></div>'
-          : '<div class="tracking-row"><div class="k">Status</div><div class="v">Sample dispatched — tracking details coming shortly.</div></div>') +
-      '</div></div>' +
-      (!isAdmin ? '<div class="action-panel" style="margin-top:16px;"><div class="action-panel-eyebrow">Awaiting delivery</div><div class="action-panel-title">Sample on its way</div><div class="action-panel-body">Once it arrives, mark it as received to begin your review.</div><div class="action-panel-buttons"><button class="btn btn-primary">Mark as received</button></div></div>' : '');
+    return renderSampleTransitStage(order, isAdmin);
   }
 
   if (order.stage === 'sample-review') {
-    return isAdmin
-      ? '<div class="action-panel"><div class="action-panel-eyebrow">Sample with client</div><div class="action-panel-title">Awaiting physical review</div><div class="action-panel-body">Client has the sample. They\'re evaluating handfeel and finish before deciding to approve, request changes, or reject.</div></div>'
-      : '<div class="action-panel"><div class="action-panel-eyebrow">Your decision</div><div class="action-panel-title">How does the sample feel?</div><div class="action-panel-body">Approving moves your order into bulk production. Requesting changes will start a new iteration.</div><div class="action-panel-buttons"><button class="btn btn-primary">✓ Approve for production</button><button class="btn btn-secondary">Request changes</button><button class="btn btn-danger">Reject</button></div></div>';
+    return renderSampleReviewStage(order, isAdmin);
   }
+
   return '';
 }
 
@@ -3899,6 +4613,121 @@ document.addEventListener('click', (e) => {
   else if (action === 'upload-label') {
     const o = ORDERS.find(x => x.id === target.dataset.order);
     if (o) o.clientShippingLabel = { filename: 'ShippingLabel_' + o.id + '.pdf', uploaded: 'just now' };
+    render();
+  }
+  // ── Sample delivery arrangement ──
+  else if (action === 'sample-delivery-courier') {
+    const id = target.dataset.order;
+    if (sampleRuntime[id]) sampleRuntime[id].deliveryChoice = 'courier';
+    render();
+  }
+  else if (action === 'sample-delivery-sl') {
+    const id = target.dataset.order;
+    if (sampleRuntime[id]) sampleRuntime[id].deliveryChoice = 'sl';
+    render();
+  }
+  else if (action === 'sample-delivery-reset') {
+    const id = target.dataset.order;
+    if (sampleRuntime[id]) { sampleRuntime[id].deliveryChoice = null; sampleRuntime[id].courierLabelUploaded = false; }
+    render();
+  }
+  else if (action === 'upload-courier-label') {
+    const id = target.dataset.order;
+    if (sampleRuntime[id]) sampleRuntime[id].courierLabelUploaded = true;
+    render();
+  }
+  // ── Sample transit → received ──
+  else if (action === 'mark-sample-received') {
+    const id = target.dataset.order;
+    const o = ORDERS.find(x => x.id === id);
+    if (sampleRuntime[id]) sampleRuntime[id].sampleReceived = true;
+    if (o) { o.stage = 'sample-review'; o.updated = 'just now'; }
+    render();
+  }
+  // ── Sample review: approve ──
+  else if (action === 'approve-sample') {
+    const id = target.dataset.order;
+    if (sampleRuntime[id]) sampleRuntime[id].reviewDecision = 'approved';
+    render();
+  }
+  // ── Sample review: pay 30% deposit → move to production ──
+  else if (action === 'pay-sample-deposit') {
+    const id = target.dataset.order;
+    const o = ORDERS.find(x => x.id === id);
+    if (sampleRuntime[id]) sampleRuntime[id].deposit30Paid = true;
+    if (o) { o.stage = 'production'; o.updated = 'just now'; }
+    render();
+  }
+  // ── Sample review: raise concern ──
+  else if (action === 'raise-concern') {
+    const id = target.dataset.order;
+    if (sampleRuntime[id]) {
+      sampleRuntime[id].reviewDecision = 'concern';
+      sampleRuntime[id].concern = { status: 'form', description: '', adminResponse: '' };
+    }
+    render();
+  }
+  else if (action === 'cancel-concern') {
+    const id = target.dataset.order;
+    if (sampleRuntime[id]) { sampleRuntime[id].reviewDecision = null; sampleRuntime[id].concern = null; }
+    render();
+  }
+  else if (action === 'submit-concern') {
+    const id = target.dataset.order;
+    const desc = document.getElementById('concern-desc-' + id)?.value?.trim() || '(No description provided)';
+    if (sampleRuntime[id] && sampleRuntime[id].concern) {
+      sampleRuntime[id].concern.status = 'submitted';
+      sampleRuntime[id].concern.description = desc;
+    }
+    render();
+  }
+  // ── Admin responds to concern ──
+  else if (action === 'admin-respond-concern') {
+    const id = target.dataset.order;
+    const resp = document.getElementById('concern-response-' + id)?.value?.trim() || '(No response provided)';
+    if (sampleRuntime[id] && sampleRuntime[id].concern) {
+      sampleRuntime[id].concern.status = 'responded';
+      sampleRuntime[id].concern.adminResponse = resp;
+    }
+    render();
+  }
+  // ── Client: resolve concern → approve ──
+  else if (action === 'concern-resolve-approve') {
+    const id = target.dataset.order;
+    if (sampleRuntime[id]) sampleRuntime[id].reviewDecision = 'approved';
+    render();
+  }
+  // ── Client: request new iteration ──
+  else if (action === 'concern-request-iteration') {
+    const id = target.dataset.order;
+    if (sampleRuntime[id] && sampleRuntime[id].concern) {
+      sampleRuntime[id].concern.status = 'iteration-requested';
+    }
+    render();
+  }
+  // ── Pay iteration fee → start new iteration ──
+  else if (action === 'pay-iteration-fee') {
+    const id = target.dataset.order;
+    const o = ORDERS.find(x => x.id === id);
+    if (sampleRuntime[id]) {
+      sampleRuntime[id].reviewDecision = null;
+      sampleRuntime[id].concern = null;
+    }
+    if (o) {
+      // Start a new iteration by moving back to sampling and adding a new iteration entry
+      o.stage = 'sampling';
+      o.updated = 'just now';
+      if (!o.sampleIterations) o.sampleIterations = [];
+      const nextVersion = o.sampleIterations.length + 1;
+      o.sampleIterations.push({
+        version: nextVersion,
+        status: 'current',
+        submittedAt: 'Just started',
+        photos: [],
+        changeNotes: null,
+        clientDecision: null,
+      });
+    }
     render();
   }
   else if (action === 'toggle-question-form') {
